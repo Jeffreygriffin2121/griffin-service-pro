@@ -1,0 +1,1226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Aquarea Annual Service Checklist (H, J, K & L) — Field Service Sheet</title>
+
+<style>
+  :root{
+    --bg:#f3f5f8;
+    --card:#ffffff;
+    --ink:#121417;
+    --muted:#5b6470;
+    --line:#e6e9ee;
+    --subtle1:#f6f9fc;
+    --subtle2:#fafafa;
+    --subtle3:#f5faf7;
+    --subtle4:#faf8fc;
+    --accent:#0b6efd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; background:var(--bg); color:var(--ink); }
+
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(243,245,248,0.92);
+    backdrop-filter:saturate(140%) blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .bar{
+    max-width:1180px; margin:0 auto; padding:10px 12px;
+    display:flex; gap:10px; align-items:center; justify-content:space-between;
+  }
+  .title{ display:flex; flex-direction:column; gap:2px; }
+  .title h1{ margin:0; font-size:15px; font-weight:750; }
+  .title .sub{ font-size:12px; color:var(--muted); }
+
+  .btnrow{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+  button, .btn{
+    appearance:none; border:1px solid var(--line); background:var(--card);
+    padding:7px 10px; border-radius:10px; font-size:13px; cursor:pointer;
+    box-shadow:0 6px 16px rgba(15,20,30,0.06);
+  }
+  button.primary{ border-color:rgba(11,110,253,0.30); background:rgba(11,110,253,0.07); }
+  button.danger{ border-color:rgba(220,53,69,0.30); background:rgba(220,53,69,0.05); }
+  button:active{ transform:translateY(1px); }
+
+  main{ max-width:1180px; margin:12px auto 46px; padding:0 12px; }
+
+  .status{
+    display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    margin:0 0 12px;
+  }
+  .pill{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 10px; border-radius:999px;
+    border:1px solid var(--line);
+    font-size:12px; color:var(--muted);
+    background:#fff;
+  }
+  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; }
+
+  .grid{ display:grid; grid-template-columns:1fr; gap:12px; }
+  @media(min-width:980px){
+    .grid{ grid-template-columns:1fr 1fr; }
+    .span2{ grid-column:1 / -1; }
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:14px;
+    box-shadow:0 10px 28px rgba(15,20,30,0.06);
+  }
+  .card h2{ margin:0 0 10px; font-size:14px; letter-spacing:0.2px; }
+  .hint{ font-size:12px; color:var(--muted); margin:-6px 0 10px; line-height:1.25; }
+
+  /* Subtle section colours (very light) */
+  .t-customer{ background:#fff; }
+  .t-id{ background:var(--subtle1); }
+  .t-checks{ background:var(--subtle2); }
+  .t-perf{ background:var(--subtle3); }
+  .t-photos{ background:var(--subtle4); }
+  .t-sign{ background:#f5f6f8; border:1px dashed var(--line); }
+
+  .row{ display:grid; grid-template-columns:1fr; gap:10px; margin:10px 0; }
+  @media(min-width:720px){
+    .row.two{ grid-template-columns:1fr 1fr; }
+    .row.three{ grid-template-columns:1fr 1fr 1fr; }
+    .row.four{ grid-template-columns:1fr 1fr 1fr 1fr; }
+  }
+
+  label{ font-size:12px; color:var(--muted); display:block; margin:0 0 6px; }
+  input[type="text"], input[type="number"], input[type="date"], textarea, select{
+    width:100%;
+    padding:9px 10px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    font-size:13px;
+    outline:none;
+    background:#fff;
+  }
+  textarea{ min-height:88px; resize:vertical; }
+
+  .check{
+    display:flex; align-items:center; gap:10px;
+    padding:8px 10px; border:1px solid var(--line); border-radius:12px;
+    background:rgba(255,255,255,0.55);
+  }
+  .check input{ width:18px; height:18px; }
+
+  table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    overflow:hidden;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:#fff;
+  }
+  th,td{
+    border-bottom:1px solid var(--line);
+    border-right:1px solid var(--line);
+    padding:8px 8px;
+    font-size:12.5px;
+    vertical-align:middle;
+  }
+  th{ background:#fbfcfe; font-weight:700; }
+  tr:last-child td{ border-bottom:none; }
+  td:last-child, th:last-child{ border-right:none; }
+  .na{ color:#9aa3ad; font-size:12px; }
+
+  .scanRow{ display:grid; grid-template-columns:1fr auto; gap:8px; }
+  .scanRow button{ white-space:nowrap; }
+
+  .photos-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+    gap:10px;
+    margin-top:10px;
+  }
+  .photos-grid img{
+    width:100%;
+    height:120px;
+    object-fit:cover;
+    border-radius:12px;
+    border:1px solid var(--line);
+  }
+  .sigWrap{
+    display:grid; gap:10px;
+  }
+  .sigBox{
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:#fff;
+    padding:10px;
+  }
+  canvas.signature{
+    width:100%;
+    height:140px;
+    border:1px dashed var(--line);
+    border-radius:12px;
+    touch-action:none;
+    background:#fff;
+  }
+  .sigBtns{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-top:8px; }
+
+  @page{ size:A4 portrait; margin:10mm; }
+  @media print{
+    header{ position:static; background:#fff; border:none; }
+    .btnrow{ display:none !important; }
+    body{ background:#fff; }
+    main{ margin:0; padding:0; max-width:none; }
+    .card{ box-shadow:none; break-inside:avoid; page-break-inside:avoid; }
+    /* two-column print to reduce pages */
+    .grid{ display:block !important; column-count:2; column-gap:10mm; }
+    .span2{ break-inside:avoid; }
+    textarea{ min-height:70px; }
+  }
+
+  /* FORCE UPPERCASE FOR TECHNICAL FIELDS */
+  input[type="text"]:not(.free-text),
+  textarea:not(.free-text){
+    text-transform: uppercase;
+  }
+
+</style>
+</head>
+
+<body>
+<header>
+  <div class="bar">
+    <div class="title">
+      <h1>Aquarea Annual Service Checklist (H, J, K & L)</h1>
+      <div class="sub">Auto-save • Scan • Photos • Signatures • Export PDF/CSV</div>
+    </div>
+    <div class="btnrow">
+      <button class="primary" id="btnSaveNow">Save Now</button>
+      <button id="btnCSV">Export CSV</button>
+      <button id="btnPrint">Print / PDF</button>
+      <button class="danger" id="btnClear">Clear</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="status">
+    <span class="pill">Last saved: <b id="lastSaved" class="mono">—</b></span>
+    <span class="pill">Completion: <b id="completionPct">0%</b></span>
+    <span class="pill">Draft ID: <b id="draftId" class="mono">—</b></span>
+    <span class="pill">Scan: <b id="scanCap" class="mono">—</b></span>
+    <span class="pill">Photos in PDF: <b class="mono">Yes</b></span>
+    <span class="pill">Autosave: <b id="autosaveState" class="mono">ON</b></span>
+  </div>
+
+  <div class="grid">
+
+    <!-- Customer / Site -->
+    <section class="card span2 t-customer">
+      <h2>Customer & Site Details</h2>
+      <div class="row two">
+        <div><label>Customer Name</label><input type="text" name="customer_name" class="free-text" /></div>
+        <div><label>Customer Reference</label><input type="text" name="customer_reference" class="free-text" /></div>
+      </div>
+      <div class="row two">
+        <div><label>Site Address</label><textarea name="site_address" class="free-text" placeholder="Full address..."></textarea></div>
+        <div class="row">
+          <div><label>Date of Service</label><input type="date" name="date_of_service" /></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IDs (with scan) -->
+    <section class="card t-id">
+      <h2>Indoor Unit</h2>
+      <div class="row">
+        <div>
+          <label>Indoor Model number</label>
+          <div class="scanRow">
+            <input type="text" name="indoor_model_number" />
+            <button type="button" data-scan-target="indoor_model_number">Scan</button>
+          </div>
+        </div>
+        <div>
+          <label>Indoor Model Serial Number</label>
+          <div class="scanRow">
+            <input type="text" name="indoor_model_serial_number" />
+            <button type="button" data-scan-target="indoor_model_serial_number">Scan</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card t-id">
+      <h2>Outdoor Unit</h2>
+      <div class="row">
+        <div>
+          <label>Outdoor Model Number</label>
+          <div class="scanRow">
+            <input type="text" name="outdoor_model_number" />
+            <button type="button" data-scan-target="outdoor_model_number">Scan</button>
+          </div>
+        </div>
+        <div>
+          <label>Ourdoor Model Serial Number</label>
+          <div class="scanRow">
+            <input type="text" name="outdoor_model_serial_number" />
+            <button type="button" data-scan-target="outdoor_model_serial_number">Scan</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Electrical Checks -->
+    <section class="card t-checks">
+      <h2>Electrical Checks</h2>
+      <div class="row">
+        <div><label>Site Voltage(V)</label><input type="number" step="0.1" name="site_voltage_v" /></div>
+        <div class="check"><input type="checkbox" name="breaker_sizes_correct" /><div><b>Breaker Sizes Correct</b></div></div>
+        <div class="check"><input type="checkbox" name="cable_sizes_correct" /><div><b>Cable Sizes Correct</b></div></div>
+        <div class="check"><input type="checkbox" name="local_isolatore_present" /><div><b>Local Isolatore Present</b></div></div>
+        <div class="check"><input type="checkbox" name="cable_glands_secure" /><div><b>Cable Glands Secure</b></div></div>
+      </div>
+    </section>
+
+    <!-- Refrigeration Checks -->
+    <section class="card t-checks">
+      <h2>Refrigeration Checks</h2>
+      <div class="row">
+        <div class="check"><input type="checkbox" name="signs_of_corrossion" /><div><b>Signs Of Corrossion</b></div></div>
+        <div class="check"><input type="checkbox" name="pipe_sizes_correct" /><div><b>Pipe Sizes Correct</b></div></div>
+        <div class="check"><input type="checkbox" name="check_flared_connections_for_oil" /><div><b>Check Flared Connections for Oil</b></div></div>
+        <div class="check"><input type="checkbox" name="pipe_insulation_condition" /><div><b>Pipe Insulation Condition</b></div></div>
+        <div class="check"><input type="checkbox" name="pipe_lengths_correct" /><div><b>Pipe Lengths Correct</b></div></div>
+        <div class="check"><input type="checkbox" name="r290_leakage_detected_during_servicing" /><div><b>R290 leakage detected during servicing?</b></div></div>
+      </div>
+    </section>
+
+    <!-- Mechanical Checks -->
+    <section class="card t-checks">
+      <h2>Mechanical Checks</h2>
+      <div class="row">
+        <div class="check"><input type="checkbox" name="outdoor_unit_secure" /><div><b>Outdoor Unit Secure</b></div></div>
+        <div class="check"><input type="checkbox" name="outdoor_coil_clean" /><div><b>Outdoor Coil Clean</b></div></div>
+        <div class="check"><input type="checkbox" name="fin_condition" /><div><b>Fin Condition</b></div></div>
+        <div class="check"><input type="checkbox" name="drain_holes_clear" /><div><b>Drain Holes Clear</b></div></div>
+        <div class="check"><input type="checkbox" name="clearances_adequate" /><div><b>Clearances Adequate</b></div></div>
+        <div class="check"><input type="checkbox" name="suitable_drainage" /><div><b>Suitable Drainage</b></div></div>
+      </div>
+    </section>
+
+    <!-- Mechanical (right side items in original layout) -->
+    <section class="card t-checks">
+      <h2>Mechanical / Hydraulics (continued)</h2>
+      <div class="row">
+        <div class="check"><input type="checkbox" name="r290_protective_zone_followed" /><div><b>R290 Protective Zone Followed</b></div></div>
+        <div class="check"><input type="checkbox" name="insulation_condition_ok" /><div><b>Insulation Condition OK</b></div></div>
+        <div class="check"><input type="checkbox" name="expansion_vessel_pressure_correct" /><div><b>Expansion Vessel Pressure Correct</b></div></div>
+        <div class="check"><input type="checkbox" name="checked_pressure_relief_discharge" /><div><b>Checked Pressure Relief & Discharge</b></div></div>
+        <div class="check"><input type="checkbox" name="static_pressure_adequate" /><div><b>Static Pressure Adequate</b></div></div>
+        <div class="check"><input type="checkbox" name="clean_return_filter" /><div><b>Clean Return Filter</b></div></div>
+        <div class="check"><input type="checkbox" name="air_purge_valve_operated_on_heater" /><div><b>Air Purge Valve Operated on Heater</b></div></div>
+        <div><label>Glycol %(if applicable)</label><input type="number" step="0.1" name="glycol_percent" /></div>
+      </div>
+    </section>
+
+    <!-- Performance Log -->
+    <section class="card t-perf">
+      <h2>Performance Log</h2>
+      <div class="row">
+        <div><label>Compressor On/Off Counter</label><input type="number" step="1" name="compressor_on_off_counter" /></div>
+        <div><label>Compressor Total On Time</label><input type="number" step="0.1" name="compressor_total_on_time" /></div>
+        <div><label>Average Compressor Cycle Time (mins)</label><input type="number" step="0.1" name="average_compressor_cycle_time" /></div>
+        <div class="check"><input type="checkbox" name="evidence_of_compressor_short_cycling" /><div><b>Evidence Of Compressor Short Cycling</b></div></div>
+        <div><label>Backup Heater On Time(Room)</label><input type="number" step="0.1" name="backup_heater_on_time_room" /></div>
+        <div><label>Backup/Booster Heater On Time(DHW)</label><input type="number" step="0.1" name="backup_booster_heater_on_time_dhw" /></div>
+      </div>
+    </section>
+
+    <!-- Settings Checks -->
+    <section class="card t-perf">
+      <h2>Settings Checks</h2>
+      <div class="row">
+        <div class="check"><input type="checkbox" name="installer_setup_settings_appropriate" /><div><b>Are the Installer Setup settings appropriate for the system?</b></div></div>
+        <div>
+          <label>Note any change / recommendations to settings</label>
+          <textarea name="note_any_change_recommendations_to_settings" placeholder="N/A"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- DHW Checks -->
+    <section class="card t-checks">
+      <h2>DHW Checks</h2>
+      <div class="row">
+        <div class="check"><input type="checkbox" name="dhw_tank_panasonic_branded" /><div><b>DHW Tank Panasonic Branded</b></div></div>
+        <div><label>Brand</label><input type="text" name="dhw_brand" /></div>
+        <div><label>Model</label><input type="text" name="dhw_model" /></div>
+        <div><label>Serial Number</label><input type="text" name="dhw_serial_number" /></div>
+        <div><label>Heat Exchanger Type</label><input type="text" name="heat_exchanger_type" /></div>
+        <div><label>Coil Surface Area (if applicable) (m2)</label><input type="number" step="0.01" name="coil_surface_area_m2" /></div>
+        <div class="check"><input type="checkbox" name="dhw_tank_suitable" /><div><b>DHW Tank Suitable</b></div></div>
+        <div class="check"><input type="checkbox" name="sensor_location_suitable" /><div><b>Sensor Location Suitable</b></div></div>
+      </div>
+    </section>
+
+    <section class="card t-checks">
+      <h2>DHW Safety Components</h2>
+      <div class="row">
+        <div class="check"><input type="checkbox" name="expansion_vessel_charge_adequate" /><div><b>Expansion Vessel Charge Adequate</b></div></div>
+        <div class="check"><input type="checkbox" name="check_prv_ptr" /><div><b>Check PRV & PTR</b></div></div>
+        <div class="check"><input type="checkbox" name="tundish_value" /><div><b>Tundish Value</b></div></div>
+        <div class="check"><input type="checkbox" name="d2_termination_safe" /><div><b>D2 Termination Safe</b></div></div>
+        <div class="check"><input type="checkbox" name="g3_components_present_installed_correctly" /><div><b>G3 Components Present & Installed Correctly</b></div></div>
+      </div>
+    </section>
+
+    <!-- System Performance Checks -->
+    <section class="card span2 t-perf">
+      <h2>System Performance Checks</h2>
+      <div class="row two">
+        <div><label>Flow Rate at Pump Maximum Duty Setting(Heating Side) (l/min)</label>
+          <input type="number" step="0.1" name="flow_rate_pump_max_duty_heating_lmin" />
+        </div>
+        <div><label>Max Speed Setting (HEX)</label><input type="text" name="max_speed_setting_hex" /></div>
+      </div>
+      <div class="row two">
+        <div><label>Flow Rate at Pump Maximum Duty Setting(DHW Side) (l/min)</label>
+          <input type="number" step="0.1" name="flow_rate_pump_max_duty_dhw_lmin" />
+        </div>
+        <div><label>Flow Rate Setting(Max Duty or DeltaT)</label><input type="text" name="flow_rate_setting_max_duty_or_deltat" /></div>
+      </div>
+      <div class="hint">ΔT should be entered manually elsewhere if required — no auto-calculation here.</div>
+    </section>
+
+    <!-- Performance Check table (Heating/DHW/Cooling) -->
+    <section class="card span2 t-perf">
+      <h2>Performance Check</h2>
+      <div class="hint">Enter values for Heating Mode and DHW Mode as applicable.</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:34%">Performance Check</th>
+            <th style="width:33%">Heating Mode</th>
+            <th style="width:33%">DHW Mode</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Outside Temperature (˚C)</td>
+            <td><input type="number" step="0.1" name="pc_outside_temp_heat" /></td>
+            <td><input type="number" step="0.1" name="pc_outside_temp_dhw" /></td>
+          </tr>
+          <tr>
+            <td>Outdoor Unit Air Off Temperature (˚C)</td>
+            <td><input type="number" step="0.1" name="pc_air_off_temp_heat" /></td>
+            <td><input type="number" step="0.1" name="pc_air_off_temp_dhw" /></td>
+          </tr>
+          <tr>
+            <td>Outlet Temperature (˚C)</td>
+            <td><input type="number" step="0.1" name="pc_outlet_temp_heat" /></td>
+            <td><input type="number" step="0.1" name="pc_outlet_temp_dhw" /></td>
+          </tr>
+          <tr>
+            <td>Inlet Temperature (˚C)</td>
+            <td><input type="number" step="0.1" name="pc_inlet_temp_heat" /></td>
+            <td><input type="number" step="0.1" name="pc_inlet_temp_dhw" /></td>
+          </tr>
+          <tr>
+            <td>Flow Rate (l/min)</td>
+            <td><input type="number" step="0.1" name="pc_flow_rate_heat" /></td>
+            <td><input type="number" step="0.1" name="pc_flow_rate_dhw" /></td>
+          </tr>
+          <tr>
+            <td>Compressor Frequency (Hz)</td>
+            <td><input type="number" step="0.1" name="pc_comp_freq_heat" /></td>
+            <td><input type="number" step="0.1" name="pc_comp_freq_dhw" /></td>
+          </tr>
+          <tr>
+            <td>Running Current (A)</td>
+            <td><input type="number" step="0.1" name="pc_running_current_heat" /></td>
+            <td><input type="number" step="0.1" name="pc_running_current_dhw" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+
+    <!-- kW Usage & COP -->
+    <section class="card span2 t-perf">
+      <h2>kW Usage &amp; COP</h2>
+      <div class="row three">
+        <div>
+          <label>kW Usage — Total</label>
+          <input type="number" step="0.01" name="kw_usage_total" />
+        </div>
+        <div>
+          <label>kW Usage — Tank</label>
+          <input type="number" step="0.01" name="kw_usage_tank" />
+        </div>
+        <div>
+          <label>kW Usage — Heat</label>
+          <input type="number" step="0.01" name="kw_usage_heat" />
+        </div>
+      </div>
+      <div class="row three">
+        <div>
+          <label>COP — Total</label>
+          <input type="number" step="0.01" name="cop_total" />
+        </div>
+        <div>
+          <label>COP — Tank</label>
+          <input type="number" step="0.01" name="cop_tank" />
+        </div>
+        <div>
+          <label>COP — Heat</label>
+          <input type="number" step="0.01" name="cop_heat" />
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Photos -->
+    <section class="card span2 t-photos">
+      <h2>Image Attachments</h2>
+      <div class="hint">Attach photos for the report (labels, installation, issues). Photos are included in Print/PDF. They are not exported to CSV.</div>
+      <div class="row">
+        <div>
+          <label>Add Photos</label>
+          <input type="file" id="sitePhotos" accept="image/*" multiple />
+          <div class="photo-help">You can choose images from the gallery or take photos with the camera.</div>
+          <div id="sitePhotosPreview" class="photos-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notes -->
+    <section class="card span2 t-customer">
+      <h2>Notes/Comments/Recommendations</h2>
+      <textarea name="notes_comments_recommendations" class="free-text"></textarea>
+    </section>
+
+    <!-- Completion (from sheet bottom) -->
+    <section class="card span2 t-perf">
+      <h2>Completion</h2>
+      <div class="row two">
+        <div class="check"><input type="checkbox" name="return_visit_required" /><div><b>Is a return visit required?</b></div></div>
+        <div class="check"><input type="checkbox" name="system_left_operational" /><div><b>Has the system been left operational?</b></div></div>
+      </div>
+    </section>
+
+    <!-- Signatures MUST be last -->
+    <section class="card span2 t-sign">
+      <h2>Sign-off / Signatures</h2>
+      <div class="hint">Draw signatures with finger/stylus/mouse. Signatures are saved with the draft and included in the PDF.</div>
+
+      <div class="row two">
+        <div>
+          <label>Engineer Name</label>
+          <input type="text" name="engineer_name" class="free-text" />
+        </div>
+        <div>
+          <label>Customer Name</label>
+          <input type="text" name="customer_name_signoff" class="free-text" />
+        </div>
+      </div>
+
+      <div class="row two sigWrap">
+        <div class="sigBox">
+          <label>Engineer Signature</label>
+          <canvas class="signature" id="sigEngineer" width="900" height="280"></canvas>
+          <div class="sigBtns">
+            <button type="button" data-sig-clear="sigEngineer">Clear</button>
+          </div>
+          <input type="hidden" name="engineer_signature_dataurl" class="free-text" id="engineerSigData" />
+        </div>
+
+        <div class="sigBox">
+          <label>Customer Signature</label>
+          <canvas class="signature" id="sigCustomer" width="900" height="280"></canvas>
+          <div class="sigBtns">
+            <button type="button" data-sig-clear="sigCustomer">Clear</button>
+          </div>
+          <input type="hidden" name="customer_signature_dataurl" class="free-text" id="customerSigData" />
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Scan modal -->
+<dialog id="scanDlg" style="border:none;border-radius:16px;max-width:520px;width:92vw;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+  <form method="dialog" style="margin:0;padding:14px;">
+    <h3 style="margin:0 0 8px; font-size:14px;">Scan label (QR/Barcode)</h3>
+    <div style="font-size:12px;color:var(--muted); margin-bottom:10px;">
+      If scanning isn’t available, paste/type the value below.
+    </div>
+    <div class="row">
+      <div>
+        <label>Scanned / Entered value</label>
+        <input id="scanValue" type="text" />
+      </div>
+      <div class="hint" id="scanSupport" style="margin:0;"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:8px;">
+        <button type="button" id="btnStartScan">Start Camera Scan</button>
+        <button class="primary" id="btnApplyScan" value="ok">Apply</button>
+        <button value="cancel">Cancel</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(() => {
+  const STORAGE_KEY = "aquarea_service_sheet_from_excel_v1";
+  const DRAFT_ID_KEY = "aquarea_service_sheet_from_excel_draft_id_v1";
+
+  const els = {
+    lastSaved: document.getElementById("lastSaved"),
+    completionPct: document.getElementById("completionPct"),
+    draftId: document.getElementById("draftId"),
+    scanCap: document.getElementById("scanCap"),
+    btnSaveNow: document.getElementById("btnSaveNow"),
+    btnCSV: document.getElementById("btnCSV"),
+    btnPrint: document.getElementById("btnPrint"),
+    btnClear: document.getElementById("btnClear"),
+    scanDlg: document.getElementById("scanDlg"),
+    scanValue: document.getElementById("scanValue"),
+    scanSupport: document.getElementById("scanSupport"),
+    btnStartScan: document.getElementById("btnStartScan"),
+    btnApplyScan: document.getElementById("btnApplyScan"),
+    engineerSigData: document.getElementById("engineerSigData"),
+    customerSigData: document.getElementById("customerSigData"),
+  };
+
+  // --------- File naming helpers (PDF/CSV) ----------
+  const ORIGINAL_TITLE = document.title;
+  const safeName = (s) => {
+    const out = (s || "").toString().trim()
+      .replace(/[^\w\-]+/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 60);
+    return out || "Customer";
+  };
+  const buildBaseFilename = (data) => {
+    const nm = safeName(data?.customer_name);
+    const dt = (data?.date_of_service || new Date().toISOString().slice(0,10));
+    return `Aquarea_ServiceSheet_${nm}_${dt}`;
+  };
+
+  // --------- Photo compression store (used for print/PDF + size control) ----------
+  let compressedPhotos = []; // [{ name, dataUrl, bytes }]
+
+
+  const scanSupported = ("BarcodeDetector" in window) && !!navigator.mediaDevices?.getUserMedia;
+  els.scanCap.textContent = scanSupported ? "BarcodeDetector" : "Manual";
+
+  function getDraftId(){
+    let id = localStorage.getItem(DRAFT_ID_KEY);
+    if(!id){
+      id = "DR-" + Math.random().toString(16).slice(2,10).toUpperCase() + "-" + Date.now().toString(36).toUpperCase();
+      localStorage.setItem(DRAFT_ID_KEY, id);
+    }
+    return id;
+  }
+  els.draftId.textContent = getDraftId();
+
+  // Fields saved/exported (exclude photos file input; photos are PDF-only)
+  const fields = Array.from(document.querySelectorAll("input[name], textarea[name], select[name]"))
+    .filter(el => el.id !== "sitePhotos");
+
+
+  // --------- Auto-calc: Average Compressor Cycle Time ----------
+  // Calculated as: Compressor Total On Time / Compressor On/Off Counter
+  // Auto-fills when the average field is empty, but allows manual override by typing a value.
+  const compOnOffEl = document.querySelector('input[name="compressor_on_off_counter"]');
+  const compOnTimeEl = document.querySelector('input[name="compressor_total_on_time"]');
+  const compAvgEl    = document.querySelector('input[name="average_compressor_cycle_time"]');
+
+  let compAvgManualOverride = false;
+
+  function calcAvgCompressorCycleTime(){
+    const c = parseFloat(compOnOffEl?.value || "");
+    const t = parseFloat(compOnTimeEl?.value || "");
+    if(!isFinite(c) || c <= 0 || !isFinite(t) || t <= 0) return "";
+    // Match step=0.1
+    return ((t / c) * 60).toFixed(1);
+  }
+
+  function maybeAutoFillAvgCompressorCycleTime(){
+    if(!compAvgEl || !compOnOffEl || !compOnTimeEl) return;
+    const avgNow = (compAvgEl.value || "").trim();
+    if(compAvgManualOverride && avgNow !== "") return; // user override
+    const computed = calcAvgCompressorCycleTime();
+    if(computed !== ""){
+      compAvgEl.value = computed;
+    }else if(!compAvgManualOverride){
+      compAvgEl.value = "";
+    }
+  }
+
+  if(compAvgEl){
+    compAvgEl.addEventListener("input", () => {
+      const v = (compAvgEl.value || "").trim();
+      // If the user clears the field, return to auto mode
+      compAvgManualOverride = v !== "";
+    });
+  }
+  if(compOnOffEl) compOnOffEl.addEventListener("input", maybeAutoFillAvgCompressorCycleTime);
+  if(compOnTimeEl) compOnTimeEl.addEventListener("input", maybeAutoFillAvgCompressorCycleTime);
+
+  // Run once on load (and after any draft-load that may populate fields)
+  setTimeout(maybeAutoFillAvgCompressorCycleTime, 0);
+
+
+  // --------- Signature pads ----------
+  function initSig(canvasId, hiddenInputId){
+    const canvas = document.getElementById(canvasId);
+    const hidden = document.getElementById(hiddenInputId);
+    if(!canvas || !hidden) return null;
+    const ctx = canvas.getContext("2d");
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#111";
+
+    let drawing = false;
+    let last = null;
+
+    const getPos = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = (e.touches ? e.touches[0].clientX : e.clientX);
+      const clientY = (e.touches ? e.touches[0].clientY : e.clientY);
+      // map to canvas coordinate space
+      const x = (clientX - rect.left) * (canvas.width / rect.width);
+      const y = (clientY - rect.top) * (canvas.height / rect.height);
+      return {x,y};
+    };
+
+    const start = (e) => { drawing = true; last = getPos(e); e.preventDefault(); };
+    const move = (e) => {
+      if(!drawing) return;
+      const p = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      last = p;
+      e.preventDefault();
+    };
+    const end = () => { drawing = false; last = null; saveSig(); };
+
+    const clear = () => {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      hidden.value = "";
+      saveNow();
+    };
+
+    const saveSig = () => {
+      // Only store if there is ink: quick heuristic by reading pixels sparsely
+      const img = ctx.getImageData(0,0,canvas.width,canvas.height).data;
+      let ink = 0;
+      for(let i=0;i<img.length;i+=1600){
+        if(img[i] < 240 || img[i+1] < 240 || img[i+2] < 240){ ink++; if(ink>2) break; }
+      }
+      hidden.value = ink>2 ? canvas.toDataURL("image/png") : "";
+      saveNow();
+    };
+
+    canvas.addEventListener("mousedown", start);
+    canvas.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", end);
+
+    canvas.addEventListener("touchstart", start, {passive:false});
+    canvas.addEventListener("touchmove", move, {passive:false});
+    canvas.addEventListener("touchend", end);
+
+    return { canvas, hidden, clear, load: (dataUrl) => {
+      clear();
+      if(!dataUrl) return;
+      const img = new Image();
+      img.onload = () => { ctx.drawImage(img,0,0,canvas.width,canvas.height); hidden.value=dataUrl; };
+      img.src = dataUrl;
+    }};
+  }
+
+  const sigEngineer = initSig("sigEngineer", "engineerSigData");
+  const sigCustomer = initSig("sigCustomer", "customerSigData");
+
+  document.querySelectorAll("[data-sig-clear]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-sig-clear");
+      if(id === "sigEngineer") sigEngineer?.clear();
+      if(id === "sigCustomer") sigCustomer?.clear();
+    });
+  });
+
+  // --------- Save / Load ----------
+  function serialize(){
+    const data = { _meta: { version:1, savedAt:new Date().toISOString(), draftId:getDraftId() } };
+    for(const el of fields){
+      if(el.type === "checkbox") data[el.name] = !!el.checked;
+      else data[el.name] = (el.value ?? "").toString();
+    }
+    return data;
+  }
+
+  function apply(data){
+    for(const el of fields){
+      if(!(el.name in data)) continue;
+      if(el.type === "checkbox") el.checked = !!data[el.name];
+      else el.value = data[el.name] ?? "";
+    }
+    // load signatures onto canvases
+    sigEngineer?.load(data.engineer_signature_dataurl || "");
+    sigCustomer?.load(data.customer_signature_dataurl || "");
+    updateCompletion();
+  }
+
+  function saveNow(){
+    const data = serialize();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    els.lastSaved.textContent = new Date().toLocaleString();
+    updateCompletion();
+  }
+
+  function load(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    try{
+      const data = JSON.parse(raw);
+      apply(data);
+            maybeAutoFillAvgCompressorCycleTime();
+if(data?._meta?.savedAt) els.lastSaved.textContent = new Date(data._meta.savedAt).toLocaleString();
+    }catch(e){}
+  }
+
+  function updateCompletion(){
+    let filled = 0;
+    for(const el of fields){
+      if(el.type === "checkbox"){ if(el.checked) filled++; }
+      else if((el.value ?? "").toString().trim().length > 0) filled++;
+    }
+    const pct = Math.round((filled / Math.max(1, fields.length)) * 100);
+    els.completionPct.textContent = pct + "%";
+  }
+
+  let t=null;
+  const scheduleSave = () => { if(t) clearTimeout(t); t=setTimeout(saveNow, 350); };
+  for(const el of fields){
+    el.addEventListener("input", () => { scheduleSave(); updateCompletion(); });
+    el.addEventListener("change", () => { scheduleSave(); updateCompletion(); });
+  }
+
+  els.btnSaveNow.addEventListener("click", saveNow);
+  els.btnPrint.addEventListener("click", () => {
+    const data = serialize();
+    document.title = buildBaseFilename(data);
+    window.print();
+  });
+  window.addEventListener("afterprint", () => { document.title = ORIGINAL_TITLE; });
+
+  els.btnClear.addEventListener("click", () => {
+    if(!confirm("Clear the form and remove the saved draft from this device?")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    for(const el of fields){
+      if(el.type === "checkbox") el.checked=false;
+      else el.value="";
+    }
+    sigEngineer?.clear(); sigCustomer?.clear();
+    els.lastSaved.textContent="—";
+    updateCompletion();
+  });
+
+  // --------- CSV export ----------
+  function csvEscape(v){
+    const s = (v ?? "").toString();
+    if(/[",\n\r]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+    return s;
+  }
+  function exportCSV(){
+    const data = serialize();
+    // Add photo count (not exported as images)
+    const photoCount = (compressedPhotos?.length || document.getElementById("sitePhotos")?.files?.length || 0);
+    data.photo_count = photoCount;
+
+    const keys = Object.keys(data).filter(k => k !== "_meta");
+    // Keep a stable order: sort keys, but put meta-ish first
+    keys.sort((a,b)=>a.localeCompare(b));
+    const header = ["draft_id","saved_at"].concat(keys);
+    const row = [data._meta.draftId, data._meta.savedAt].concat(keys.map(k => data[k]));
+    const csv = header.map(csvEscape).join(",") + "\n" + row.map(csvEscape).join(",") + "\n";
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const name = "Aquarea_ServiceSheet_" + (data.customer_name || "Customer").replace(/[^\w\-]+/g,"_") + "_" + (data.date_of_service || new Date().toISOString().slice(0,10)) + ".csv";
+    a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  }
+  els.btnCSV.addEventListener("click", exportCSV);
+
+  // --------- Photos preview (PDF only) with AUTO-COMPRESSION ----------
+  const photoInput = document.getElementById("sitePhotos");
+  const photoPreview = document.getElementById("sitePhotosPreview");
+
+  // TUNING KNOBS (reduce these if PDFs still exceed ~5MB)
+  const PHOTO_MAX_EDGE = 1600;        // try 1200 / 1000 for smaller PDFs
+  const PHOTO_QUALITY  = 0.70;        // try 0.60 / 0.55 for smaller PDFs
+  const PHOTO_MIME     = "image/jpeg"; // "image/webp" can be smaller if supported
+
+  function base64DataUrlBytes(dataUrl){
+    const b64 = (dataUrl.split(",")[1] || "");
+    const padding = (b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0);
+    return Math.max(0, Math.floor((b64.length * 3) / 4) - padding);
+  }
+  function fmtBytes(bytes){
+    const mb = bytes / (1024*1024);
+    return mb >= 1 ? `${mb.toFixed(2)} MB` : `${(bytes/1024).toFixed(0)} KB`;
+  }
+
+  async function compressImageFile(file){
+    const dataUrl = await new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result);
+      fr.onerror = reject;
+      fr.readAsDataURL(file);
+    });
+
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = reject;
+      i.src = dataUrl;
+    });
+
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
+
+    let targetW = w, targetH = h;
+    const maxEdge = Math.max(w, h);
+    if(maxEdge > PHOTO_MAX_EDGE){
+      const scale = PHOTO_MAX_EDGE / maxEdge;
+      targetW = Math.round(w * scale);
+      targetH = Math.round(h * scale);
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img, 0, 0, targetW, targetH);
+
+    const outDataUrl = canvas.toDataURL(PHOTO_MIME, PHOTO_QUALITY);
+    const bytes = base64DataUrlBytes(outDataUrl);
+    return { name: file.name || "photo", dataUrl: outDataUrl, bytes };
+  }
+
+  function renderCompressedPhotos(){
+    if(!photoPreview) return;
+    photoPreview.innerHTML = "";
+
+    const totalBytes = compressedPhotos.reduce((sum,p)=>sum+p.bytes,0);
+    const warn = totalBytes > 5 * 1024 * 1024;
+
+    const banner = document.createElement("div");
+    banner.style.cssText = "font-size:12px;color:#5b6470;margin:6px 0 10px;";
+    banner.innerHTML = `
+      <b>Compressed photos:</b> ${compressedPhotos.length}
+      &nbsp;•&nbsp; <b>Estimated total:</b> ${fmtBytes(totalBytes)}
+      ${warn ? `&nbsp;•&nbsp; <b style="color:#b02a37;">Over 5MB target</b> (reduce max edge / quality)` : ""}
+    `;
+    photoPreview.appendChild(banner);
+
+    compressedPhotos.forEach(p => {
+      const img = document.createElement("img");
+      img.src = p.dataUrl;  // IMPORTANT: embed compressed data for Print/PDF
+      img.alt = p.name;
+      img.loading = "lazy";
+      photoPreview.appendChild(img);
+    });
+  }
+
+  if(photoInput && photoPreview){
+    photoInput.addEventListener("change", async () => {
+      photoPreview.innerHTML = "Compressing images…";
+      compressedPhotos = [];
+
+      const files = Array.from(photoInput.files || []).filter(f => f.type.startsWith("image/"));
+      for(const f of files){
+        try{
+          const c = await compressImageFile(f);
+          compressedPhotos.push(c);
+        }catch(e){
+          console.warn("Photo compress failed:", f?.name, e);
+        }
+      }
+      renderCompressedPhotos();
+      updateCompletion();
+      scheduleSave();
+    });
+  }
+
+  // --------- Scanning ----------
+
+  let scanTargetName=null;
+  document.querySelectorAll("[data-scan-target]").forEach(btn => btn.addEventListener("click", () => {
+    scanTargetName = btn.getAttribute("data-scan-target");
+    els.scanValue.value = "";
+    els.scanSupport.innerHTML = scanSupported
+      ? "Camera scan supported. Click <b>Start Camera Scan</b>."
+      : "Camera scan not supported here. Please type/paste the value.";
+    els.btnStartScan.disabled = !scanSupported;
+    els.scanDlg.showModal();
+  }));
+
+  els.btnApplyScan.addEventListener("click", (e) => {
+    e.preventDefault();
+    const val = els.scanValue.value.trim();
+    const input = document.querySelector(`[name="${scanTargetName}"]`);
+    if(input) input.value = val;
+    updateCompletion(); saveNow();
+    els.scanDlg.close();
+  });
+
+  let stream=null, raf=null;
+  async function stopCamera(){
+    if(raf) cancelAnimationFrame(raf), raf=null;
+    if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+    const vid = document.getElementById("scanVideo");
+    if(vid){ vid.pause(); vid.srcObject=null; vid.remove(); }
+    const canvas = document.getElementById("scanCanvas");
+    if(canvas) canvas.remove();
+  }
+
+  async function startCameraScan(){
+    await stopCamera();
+    if(!scanSupported){ alert("Camera scan not supported on this browser."); return; }
+
+    let detector;
+    try{
+      detector = new BarcodeDetector({formats:["qr_code","code_128","code_39","ean_13","ean_8","upc_a","upc_e","itf"]});
+    }catch(e){ detector = new BarcodeDetector(); }
+
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({ video:{facingMode:"environment"}, audio:false });
+    }catch(err){
+      alert("Could not access camera: " + err);
+      return;
+    }
+
+    const holder = els.scanSupport;
+    holder.innerHTML = "";
+
+    const vid = document.createElement("video");
+    vid.id="scanVideo"; vid.autoplay=true; vid.playsInline=true; vid.muted=true;
+    vid.style.width="100%"; vid.style.borderRadius="12px"; vid.style.border="1px solid #e6e9ee";
+    vid.srcObject=stream;
+    holder.appendChild(vid);
+
+    const canvas = document.createElement("canvas");
+    canvas.id="scanCanvas"; canvas.style.display="none";
+    holder.appendChild(canvas);
+
+    const tick = async () => {
+      if(!vid.videoWidth){ raf=requestAnimationFrame(tick); return; }
+      canvas.width = vid.videoWidth; canvas.height = vid.videoHeight;
+      const ctx = canvas.getContext("2d", {willReadFrequently:true});
+      ctx.drawImage(vid,0,0,canvas.width,canvas.height);
+      try{
+        const res = await detector.detect(canvas);
+        if(res && res.length && res[0].rawValue){
+          els.scanValue.value = res[0].rawValue.trim();
+          await stopCamera();
+          return;
+        }
+      }catch(e){}
+      raf=requestAnimationFrame(tick);
+    };
+    raf=requestAnimationFrame(tick);
+  }
+
+  els.btnStartScan.addEventListener("click", startCameraScan);
+  els.scanDlg.addEventListener("close", () => { stopCamera(); scanTargetName=null; });
+
+
+  // --------- AUTOSAVE (interval safety net) ----------
+  const AUTOSAVE_INTERVAL_MS = 10000; // 10 seconds
+  setInterval(() => {
+    saveNow();
+    const el = document.getElementById("autosaveState");
+    if(el){
+      el.textContent = "SAVED " + new Date().toLocaleTimeString();
+    }
+  }, AUTOSAVE_INTERVAL_MS);
+
+  load();
+  updateCompletion();
+})();
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+<script>
+function addImageButtons(){
+  document.querySelectorAll('[data-scan-target]').forEach(btn=>{
+    const field = btn.getAttribute('data-scan-target');
+
+    const imgBtn = document.createElement('button');
+    imgBtn.type = "button";
+    imgBtn.textContent = "Image";
+    imgBtn.style.marginLeft = "6px";
+
+    imgBtn.onclick = ()=>scanFromImage(field);
+
+    btn.parentNode.appendChild(imgBtn);
+  });
+}
+
+async function scanFromImage(field){
+  const input=document.createElement("input");
+  input.type="file";
+  input.accept="image/*";
+
+  input.onchange=async ()=>{
+    const file=input.files[0];
+    if(!file) return;
+
+    const img=await createImageBitmap(file);
+
+    // Barcode first
+    if("BarcodeDetector" in window){
+      try{
+        const detector=new BarcodeDetector();
+        const codes=await detector.detect(img);
+        if(codes.length){
+          let val=codes[0].rawValue;
+          const match=val.match(/WH-[A-Z0-9\-]+/i);
+          if(match) val=match[0];
+          document.querySelector('[name="'+field+'"]').value=val;
+          return;
+        }
+      }catch(e){}
+    }
+
+    // OCR fallback
+    const reader=new FileReader();
+    reader.onload=async ()=>{
+      const result=await Tesseract.recognize(reader.result,'eng');
+      let text=result.data.text;
+
+      const match=text.match(/WH-[A-Z0-9\-]+/i);
+      if(match){
+        document.querySelector('[name="'+field+'"]').value=match[0];
+      } else {
+        alert("No WH- model found");
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  input.click();
+}
+
+// Fix PDF naming
+document.addEventListener("DOMContentLoaded", ()=>{
+  addImageButtons();
+
+  const btn = document.querySelector("#btnPrint, .printBtn");
+  if(btn){
+    btn.onclick = ()=>{
+      const name = (document.querySelector('[name="customer_name"]')?.value || "service")
+      .replace(/[^a-z0-9]/gi,"_").toLowerCase();
+
+      const old=document.title;
+      document.title=name;
+
+      setTimeout(()=>{
+        window.print();
+        document.title=old;
+      },200);
+    }
+  }
+});
+</script>
+
+
+<script>
+function extractWH(text){
+  const match = text.match(/WH-[A-Z0-9\-]+/i);
+  return match ? match[0].toUpperCase() : null;
+}
+
+function validateWH(value){
+  return /^WH-[A-Z0-9\-]+$/i.test(value);
+}
+
+async function scanFromImage(field){
+  const input=document.createElement("input");
+  input.type="file";
+  input.accept="image/*";
+
+  input.onchange=async ()=>{
+    const file=input.files[0];
+    if(!file) return;
+
+    const img=await createImageBitmap(file);
+    let finalVal = null;
+
+    if("BarcodeDetector" in window){
+      try{
+        const detector=new BarcodeDetector();
+        const codes=await detector.detect(img);
+        if(codes.length){
+          finalVal = extractWH(codes[0].rawValue) || codes[0].rawValue;
+        }
+      }catch(e){}
+    }
+
+    if(!finalVal){
+      const reader=new FileReader();
+      reader.onload=async ()=>{
+        const result=await Tesseract.recognize(reader.result,'eng');
+        finalVal = extractWH(result.data.text);
+
+        if(!finalVal){
+          alert("Scan failed - no WH- model found");
+          return;
+        }
+
+        applyValue(field, finalVal);
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    applyValue(field, finalVal);
+  };
+
+  input.click();
+}
+
+function applyValue(field, value){
+  const el=document.querySelector('[name="'+field+'"]');
+  if(!el) return;
+
+  el.value=value;
+
+  if(!validateWH(value) && field.includes("model")){
+    el.style.border="2px solid red";
+    alert("Warning: Model may be incorrect");
+  } else {
+    el.style.border="";
+  }
+
+  el.dispatchEvent(new Event('input'));
+}
+</script>
+
+</body>
+</html>
