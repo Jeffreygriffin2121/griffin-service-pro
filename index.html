@@ -1,5 +1,4 @@
 <!doctype html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -43,8 +42,8 @@ button{font:inherit}.primary{background:#0b6efd;color:white;border:0;border-radi
   </div>
 
   <div class="card">
-    <h2>Recent Drafts</h2>
-    <div id="drafts" class="list">No drafts saved yet.</div>
+    <h2>Recent Jobs</h2>
+    <div id="drafts" class="list">No jobs saved yet.</div>
   </div>
 </section>
 
@@ -58,13 +57,22 @@ button{font:inherit}.primary{background:#0b6efd;color:white;border:0;border-radi
     <label>Manufacturer<select id="maker"><option>Panasonic Aquarea</option><option>Daikin</option><option>Mitsubishi Electric</option><option>Samsung</option><option>NIBE</option><option>LG</option><option>Grant</option></select></label>
     <label>Model<input id="model"></label>
     <label>Serial Number<input id="serial"></label>
+
+    <h3>Service Readings</h3>
+    <label>Flow Temperature °C<input id="flowTemp"></label>
+    <label>Return Temperature °C<input id="returnTemp"></label>
+    <label>Outdoor Temperature °C<input id="outdoorTemp"></label>
+    <label>System Pressure Bar<input id="pressure"></label>
+
     <label>Engineer Notes<textarea id="notes" rows="5"></textarea></label>
+
     <label><input type="checkbox" class="check" value="Visual inspection completed"> Visual inspection completed</label>
     <label><input type="checkbox" class="check" value="Y-strainer checked / cleaned"> Y-strainer checked / cleaned</label>
     <label><input type="checkbox" class="check" value="Flow rate checked"> Flow rate checked</label>
     <label><input type="checkbox" class="check" value="Electrical checks recorded"> Electrical checks recorded</label>
     <label><input type="checkbox" class="check" value="Controls checked"> Controls checked</label>
-    <button class="primary" onclick="saveJob()">Save Draft</button>
+
+    <button class="primary" onclick="saveJob()">Start / Save Job</button>
     <button class="primary" style="background:#0f172a" onclick="exportReport()">Export Report</button>
   </div>
 </section>
@@ -112,36 +120,89 @@ function go(id){
  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
  window.scrollTo(0,0);
 }
+
 function data(){
  return {
-  customer:customer.value,address:address.value,contact:contact.value,type:type.value,
-  maker:maker.value,model:model.value,serial:serial.value,notes:notes.value,
+  customer:customer.value,
+  address:address.value,
+  contact:contact.value,
+  type:type.value,
+  maker:maker.value,
+  model:model.value,
+  serial:serial.value,
+  flowTemp:flowTemp.value,
+  returnTemp:returnTemp.value,
+  outdoorTemp:outdoorTemp.value,
+  pressure:pressure.value,
+  notes:notes.value,
   checks:[...document.querySelectorAll('.check:checked')].map(x=>x.value),
   date:new Date().toLocaleString()
  }
 }
+
 function saveJob(){
  let jobs=JSON.parse(localStorage.hpJobs||'[]');
  jobs.push(data());
  localStorage.hpJobs=JSON.stringify(jobs);
  render();
- alert('Draft saved on this phone.');
+ alert('Job saved on this phone.');
  go('home');
 }
+
 function render(){
  let jobs=JSON.parse(localStorage.hpJobs||'[]');
- drafts.innerHTML=jobs.length?jobs.slice().reverse().map(j=>`<p><b>${j.customer||'Unnamed customer'}</b><br>${j.maker} • ${j.type} • ${j.date}</p>`).join(''):'No drafts saved yet.';
- customersList.innerHTML=jobs.length?jobs.slice().reverse().map(j=>`<p><b>${j.customer||'Unnamed customer'}</b><br>${j.address||'No address saved'}</p>`).join(''):'Saved customers will appear here.';
+
+ drafts.innerHTML=jobs.length?jobs.slice().reverse().map(j=>`
+  <p>
+   <b>${j.customer||'Unnamed customer'}</b><br>
+   ${j.maker} • ${j.model||'No model'}<br>
+   ${j.type} • ${j.date}
+  </p>
+ `).join(''):'No jobs saved yet.';
+
+ customersList.innerHTML=jobs.length?jobs.slice().reverse().map(j=>`
+  <p>
+   <b>${j.customer||'Unnamed customer'}</b><br>
+   ${j.address||'No address saved'}<br>
+   ${j.contact||'No contact saved'}
+  </p>
+ `).join(''):'Saved customers will appear here.';
 }
+
 function exportReport(){
  let j=data();
- let text=`HeatPump Pro Report\nMunster Heat Pump Services\n\nCustomer: ${j.customer}\nAddress: ${j.address}\nContact: ${j.contact}\nJob Type: ${j.type}\nManufacturer: ${j.maker}\nModel: ${j.model}\nSerial: ${j.serial}\nDate: ${j.date}\n\nChecks:\n${j.checks.join('\n')}\n\nNotes:\n${j.notes}`;
+ let text=`HeatPump Pro Report
+Munster Heat Pump Services
+
+Customer: ${j.customer}
+Address: ${j.address}
+Contact: ${j.contact}
+
+Job Type: ${j.type}
+Manufacturer: ${j.maker}
+Model: ${j.model}
+Serial: ${j.serial}
+Date: ${j.date}
+
+Service Readings:
+Flow Temperature: ${j.flowTemp} °C
+Return Temperature: ${j.returnTemp} °C
+Outdoor Temperature: ${j.outdoorTemp} °C
+System Pressure: ${j.pressure} bar
+
+Checks:
+${j.checks.join('\n')}
+
+Notes:
+${j.notes}`;
+
  let blob=new Blob([text],{type:'text/plain'});
  let a=document.createElement('a');
  a.href=URL.createObjectURL(blob);
  a.download='HeatPump-Pro-Report.txt';
  a.click();
 }
+
 render();
 </script>
 
