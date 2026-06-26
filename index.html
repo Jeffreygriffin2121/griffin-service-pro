@@ -89,12 +89,52 @@
 <script>
 let photos={};
 function go(id,btn){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');window.scrollTo(0,0);render();}
-function savePhoto(event,key){let file=event.target.files[0];if(!file)return;let reader=new FileReader();reader.onload=function(e){photos[key]=e.target.result;let img=document.getElementById(key+'Preview');img.src=e.target.result;img.style.display='block'};reader.readAsDataURL(file)}
+function savePhoto(event,key){
+ let file=event.target.files[0];
+ if(!file)return;
+ let reader=new FileReader();
+ reader.onload=function(e){
+  let image=new Image();
+  image.onload=function(){
+   let max=900;
+   let w=image.width;
+   let h=image.height;
+   if(w>h&&w>max){h=Math.round(h*(max/w));w=max;}
+   if(h>=w&&h>max){w=Math.round(w*(max/h));h=max;}
+   let canvas=document.createElement('canvas');
+   canvas.width=w;
+   canvas.height=h;
+   let ctx=canvas.getContext('2d');
+   ctx.drawImage(image,0,0,w,h);
+   let small=canvas.toDataURL('image/jpeg',0.55);
+   photos[key]=small;
+   let img=document.getElementById(key+'Preview');
+   img.src=small;
+   img.style.display='block';
+  };
+  image.src=e.target.result;
+ };
+ reader.readAsDataURL(file);
+}
 function jobs(){return JSON.parse(localStorage.hpJobs||'[]')}
 function nextJobNumber(){return 'HP-'+String(jobs().length+1).padStart(4,'0')}
 function updateHealth(){let flow=parseFloat(flowTemp.value),ret=parseFloat(returnTemp.value),press=parseFloat(pressure.value),messages=[];if(!isNaN(flow)&&!isNaN(ret)){let dt=flow-ret;deltaT.value=dt.toFixed(1);if(dt>=3&&dt<=7)messages.push('✅ Delta T looks good');else if(dt<3)messages.push('⚠️ Delta T low - check flow rate or heat transfer');else messages.push('⚠️ Delta T high - check flow rate, pump speed or restrictions')}else deltaT.value='';if(!isNaN(press)){if(press>=1&&press<=2.5)messages.push('✅ System pressure acceptable');else messages.push('⚠️ System pressure needs checking')}healthBox.innerHTML=messages.length?'System Health:<br>'+messages.join('<br>'):'System Health: Enter readings'}
 function data(){return{jobNo:nextJobNumber(),customer:customer.value,address:address.value,contact:contact.value,type:type.value,status:jobStatus.value,maker:maker.value,model:model.value,serial:serial.value,flowTemp:flowTemp.value,returnTemp:returnTemp.value,deltaT:deltaT.value,outdoorTemp:outdoorTemp.value,pressure:pressure.value,health:healthBox.innerText,photos:photos,notes:notes.value,checks:[...document.querySelectorAll('.check:checked')].map(x=>x.value),date:new Date().toLocaleString()}}
-function saveJob(){updateHealth();let list=jobs();list.push(data());localStorage.hpJobs=JSON.stringify(list);photos={};render();alert('Job saved on this phone.');go('home')}
+function saveJob(){
+ updateHealth();
+ let list=jobs();
+ list.push(data());
+ try{
+  localStorage.hpJobs=JSON.stringify(list);
+  photos={};
+  document.querySelectorAll('.photoBox img').forEach(img=>{img.src='';img.style.display='none'});
+  render();
+  alert('Job saved on this phone.');
+  go('home');
+ }catch(e){
+  alert('Job could not save because the photos are still too large. Try fewer photos or retake them, then save again.');
+ }
+}
 function badgeClass(s){return s==='Completed'?'good':s==='Awaiting Parts'?'warn':s==='Call Back Required'?'bad':''}
 function render(){let list=jobs();totalJobs.textContent=list.length;totalCustomers.textContent=[...new Set(list.map(j=>(j.customer||'').trim()).filter(Boolean))].length;drafts.innerHTML=list.length?list.slice().reverse().map(j=>`<p><b>${j.jobNo||'HP-0000'} - ${j.customer||'Unnamed customer'}</b><br>${j.maker||''} • ${j.model||'No model'}<br>${j.type||''} • ${j.date||''}<br><span class="badge ${badgeClass(j.status)}">${j.status||'In Progress'}</span></p>`).join(''):'No jobs saved yet.';customersList.innerHTML=list.length?list.slice().reverse().map(j=>`<p><b>${j.customer||'Unnamed customer'}</b><br>${j.address||'No address saved'}<br>${j.contact||'No contact saved'}<br><small>${j.maker||''} • ${j.model||'No model'} • ${j.status||'In Progress'}</small></p>`).join(''):'Saved customers will appear here.'}
 function photoRecordText(){return['frontProperty:Front of Property','outdoorUnit:Outdoor Unit','serialPlate:Serial Plate','plantRoom:Plant Room','cylinder:Cylinder','electrical:Electrical','finishedJob:Finished Job'].map(x=>{let [k,n]=x.split(':');return photos[k]?'✓ '+n+' photo captured':'□ '+n+' photo not captured'}).join('\n')}
