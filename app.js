@@ -1,4 +1,5 @@
 let photos={};
+let signatures={engineer:null,customer:null};
 let editingIndex=null;
 const $ = id => document.getElementById(id);
 
@@ -12,6 +13,8 @@ function go(id,btn){
  if(btn)btn.classList.add('active');
  window.scrollTo(0,0);
  render();
+setTimeout(initSignaturePads,300);
+ setTimeout(initSignaturePads,100);
 }
 
 function showJobStep(n,btn){
@@ -19,18 +22,19 @@ function showJobStep(n,btn){
  $('jobStep'+n).classList.add('active');
  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
  if(btn)btn.classList.add('active'); else { const pills=document.querySelectorAll('.pill'); if(pills[n-1]) pills[n-1].classList.add('active');}
- $('progressText').textContent='Step '+n+' of 5';
- $('progressBar').style.width=(n*20)+'%';
+ $('progressText').textContent='Step '+n+' of 6';
+ $('progressBar').style.width=(n*16.66)+'%';
  window.scrollTo(0,0);
+ if(n===6)setTimeout(initSignaturePads,100);
 }
 
 function newJob(){
- editingIndex=null; photos={};
+ editingIndex=null; photos={}; signatures={engineer:null,customer:null};
  document.querySelectorAll('input,textarea').forEach(el=>{ if(el.type!=='checkbox' && el.type!=='file') el.value=''; if(el.type==='checkbox') el.checked=false; });
  document.querySelectorAll('.photoBox img').forEach(img=>{img.src='';img.style.display='none'});
  $('jobHeading').textContent='New Job';
  $('deleteBtn').classList.add('hidden');
- updateHealth(); go('job'); showJobStep(1);
+ updateHealth(); go('job'); showJobStep(1); setTimeout(redrawSignatures,200);
 }
 
 function savePhoto(event,key){
@@ -54,6 +58,35 @@ function savePhoto(event,key){
  reader.readAsDataURL(file);
 }
 
+
+function setupCanvas(canvas,type){
+ if(!canvas || canvas.dataset.ready)return;
+ canvas.dataset.ready='true';
+ const ctx=canvas.getContext('2d');
+ let drawing=false;
+ function resize(){
+  const rect=canvas.getBoundingClientRect();
+  const old=signatures[type];
+  canvas.width=Math.max(1,Math.floor(rect.width*window.devicePixelRatio));
+  canvas.height=Math.max(1,Math.floor(rect.height*window.devicePixelRatio));
+  ctx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0);
+  ctx.lineWidth=3; ctx.lineCap='round'; ctx.strokeStyle='#0f172a';
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,rect.width,rect.height);
+  if(old){let img=new Image(); img.onload=()=>ctx.drawImage(img,0,0,rect.width,rect.height); img.src=old;}
+ }
+ function point(e){const rect=canvas.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:t.clientX-rect.left,y:t.clientY-rect.top};}
+ function start(e){e.preventDefault();drawing=true;let p=point(e);ctx.beginPath();ctx.moveTo(p.x,p.y)}
+ function move(e){if(!drawing)return;e.preventDefault();let p=point(e);ctx.lineTo(p.x,p.y);ctx.stroke();signatures[type]=canvas.toDataURL('image/png')}
+ function end(){if(drawing){drawing=false;signatures[type]=canvas.toDataURL('image/png')}}
+ canvas.addEventListener('mousedown',start);canvas.addEventListener('mousemove',move);window.addEventListener('mouseup',end);
+ canvas.addEventListener('touchstart',start,{passive:false});canvas.addEventListener('touchmove',move,{passive:false});canvas.addEventListener('touchend',end);
+ resize(); window.addEventListener('resize',resize);
+}
+
+function initSignaturePads(){setupCanvas($('engineerCanvas'),'engineer'); setupCanvas($('customerCanvas'),'customer'); redrawSignatures();}
+function redrawSignatures(){[['engineer','engineerCanvas'],['customer','customerCanvas']].forEach(([type,id])=>{let canvas=$(id); if(!canvas)return; let ctx=canvas.getContext('2d'), rect=canvas.getBoundingClientRect(); ctx.fillStyle='#fff'; ctx.fillRect(0,0,rect.width,rect.height); if(signatures[type]){let img=new Image(); img.onload=()=>ctx.drawImage(img,0,0,rect.width,rect.height); img.src=signatures[type];}})}
+function clearSignature(type){signatures[type]=null; const canvas=$(type+'Canvas'); if(!canvas)return; const ctx=canvas.getContext('2d'), rect=canvas.getBoundingClientRect(); ctx.fillStyle='#fff'; ctx.fillRect(0,0,rect.width,rect.height);}
+
 function nextJobNumber(){return 'HP-'+String(jobs().length+1).padStart(4,'0')}
 
 function updateHealth(){
@@ -71,27 +104,27 @@ function data(){
   customer:$('customer').value,address:$('address').value,contact:$('contact').value,type:$('type').value,status:$('jobStatus').value,
   maker:$('maker').value,model:$('model').value,serial:$('serial').value,installDate:$('installDate').value,installer:$('installer').value,controllerVersion:$('controllerVersion').value,
   outdoorTemp:$('outdoorTemp').value,flowTemp:$('flowTemp').value,returnTemp:$('returnTemp').value,deltaT:$('deltaT').value,hotWaterTemp:$('hotWaterTemp').value,pressure:$('pressure').value,flowRate:$('flowRate').value,compressorHz:$('compressorHz').value,compressorAmps:$('compressorAmps').value,
-  health:$('healthBox').innerText,photos:photos,faults:$('faults').value,notes:$('notes').value,checks:[...document.querySelectorAll('.check:checked')].map(x=>x.value),
+  health:$('healthBox').innerText,photos:photos,signatures:signatures,faults:$('faults').value,notes:$('notes').value,checks:[...document.querySelectorAll('.check:checked')].map(x=>x.value),
   date: editingIndex===null ? new Date().toLocaleString() : jobs()[editingIndex].date, updated:new Date().toLocaleString()
  }
 }
 
 function saveJob(){
  updateHealth(); let list=jobs(); let item=data();
- try{ if(editingIndex===null) list.push(item); else list[editingIndex]=item; setJobs(list); alert(editingIndex===null?'Job saved.':'Job updated.'); editingIndex=null; photos={}; render(); go('home');}
+ try{ if(editingIndex===null) list.push(item); else list[editingIndex]=item; setJobs(list); alert(editingIndex===null?'Job saved.':'Job updated.'); editingIndex=null; photos={}; signatures={engineer:null,customer:null}; render(); go('home');}
  catch(e){alert('Job could not save because storage is full. Try fewer photos.')}
 }
 
 function openJob(i){
- const list=jobs(); const j=list[i]; editingIndex=i; photos=j.photos||{};
+ const list=jobs(); const j=list[i]; editingIndex=i; photos=j.photos||{}; signatures=j.signatures||{engineer:null,customer:null};
  $('jobHeading').textContent='Edit '+(j.jobNo||'Job'); $('deleteBtn').classList.remove('hidden');
  ['customer','address','contact','type','jobStatus','maker','model','serial','installDate','installer','controllerVersion','outdoorTemp','flowTemp','returnTemp','deltaT','hotWaterTemp','pressure','flowRate','compressorHz','compressorAmps','faults','notes'].forEach(id=>{ if($(id)) $(id).value=j[id]||''; });
  document.querySelectorAll('.check').forEach(c=>c.checked=(j.checks||[]).includes(c.value));
  ['frontProperty','outdoorUnit','serialPlate','plantRoom','cylinder','electrical','finishedJob'].forEach(k=>{let img=$(k+'Preview'); if(photos[k]){img.src=photos[k];img.style.display='block'}else{img.src='';img.style.display='none'}});
- updateHealth(); go('job'); showJobStep(1);
+ updateHealth(); go('job'); showJobStep(1); setTimeout(redrawSignatures,200);
 }
 
-function deleteCurrentJob(){ if(editingIndex===null)return; if(!confirm('Delete this job?'))return; let list=jobs(); list.splice(editingIndex,1); setJobs(list); editingIndex=null; photos={}; render(); go('home');}
+function deleteCurrentJob(){ if(editingIndex===null)return; if(!confirm('Delete this job?'))return; let list=jobs(); list.splice(editingIndex,1); setJobs(list); editingIndex=null; photos={}; signatures={engineer:null,customer:null}; render(); go('home');}
 function badgeClass(s){return s==='Completed'?'good':s==='Awaiting Parts'?'warn':s==='Call Back Required'?'bad':''}
 
 function render(){
@@ -108,7 +141,7 @@ function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&l
 
 function exportReport(){
  updateHealth(); let j=data();
- let text=`MUNSTER HEAT PUMP SERVICES\nHEATPUMP PRO SERVICE REPORT\n\nJob Number: ${j.jobNo}\nDate: ${j.date}\nUpdated: ${j.updated}\n\nCUSTOMER DETAILS\nCustomer: ${j.customer}\nAddress: ${j.address}\nContact: ${j.contact}\n\nSYSTEM DETAILS\nJob Type: ${j.type}\nJob Status: ${j.status}\nManufacturer: ${j.maker}\nModel: ${j.model}\nSerial Number: ${j.serial}\nInstallation Date: ${j.installDate}\nInstaller: ${j.installer}\nController Version: ${j.controllerVersion}\n\nSERVICE READINGS\nOutdoor Temperature: ${j.outdoorTemp} °C\nFlow Temperature: ${j.flowTemp} °C\nReturn Temperature: ${j.returnTemp} °C\nDelta T: ${j.deltaT} °C\nHot Water Temperature: ${j.hotWaterTemp} °C\nSystem Pressure: ${j.pressure} bar\nFlow Rate: ${j.flowRate} L/min\nCompressor Frequency: ${j.compressorHz} Hz\nCompressor Current: ${j.compressorAmps} A\n\nSYSTEM HEALTH\n${j.health}\n\nPHOTO RECORD\n${photoRecordText()}\n\nSERVICE CHECKS\n${j.checks.join('\n')}\n\nFAULTS / DIAGNOSIS\n${j.faults}\n\nENGINEER NOTES\n${j.notes}\n\nReport generated by HeatPump Pro`;
+ let text=`MUNSTER HEAT PUMP SERVICES\nHEATPUMP PRO SERVICE REPORT\n\nJob Number: ${j.jobNo}\nDate: ${j.date}\nUpdated: ${j.updated}\n\nCUSTOMER DETAILS\nCustomer: ${j.customer}\nAddress: ${j.address}\nContact: ${j.contact}\n\nSYSTEM DETAILS\nJob Type: ${j.type}\nJob Status: ${j.status}\nManufacturer: ${j.maker}\nModel: ${j.model}\nSerial Number: ${j.serial}\nInstallation Date: ${j.installDate}\nInstaller: ${j.installer}\nController Version: ${j.controllerVersion}\n\nSERVICE READINGS\nOutdoor Temperature: ${j.outdoorTemp} °C\nFlow Temperature: ${j.flowTemp} °C\nReturn Temperature: ${j.returnTemp} °C\nDelta T: ${j.deltaT} °C\nHot Water Temperature: ${j.hotWaterTemp} °C\nSystem Pressure: ${j.pressure} bar\nFlow Rate: ${j.flowRate} L/min\nCompressor Frequency: ${j.compressorHz} Hz\nCompressor Current: ${j.compressorAmps} A\n\nSYSTEM HEALTH\n${j.health}\n\nPHOTO RECORD\n${photoRecordText()}\n\nSERVICE CHECKS\n${j.checks.join('\n')}\n\nFAULTS / DIAGNOSIS\n${j.faults}\n\nENGINEER NOTES\n${j.notes}\n\nSignatures: Engineer ${j.signatures&&j.signatures.engineer?'captured':'not captured'}, Customer ${j.signatures&&j.signatures.customer?'captured':'not captured'}\n\nReport generated by HeatPump Pro`;
  let blob=new Blob([text],{type:'text/plain'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${j.jobNo}-HeatPump-Pro-Report.txt`;a.click();
 }
 
@@ -120,6 +153,8 @@ function generatePDFReport(){
    if(j.photos&&j.photos[k]) return `<div class="photoCard"><h4>${esc(n)}</h4><img src="${j.photos[k]}"></div>`;
    return `<div class="photoCard empty"><h4>${esc(n)}</h4><p>Photo not captured</p></div>`;
  }).join('');
+ let engineerSig=j.signatures&&j.signatures.engineer?`<img src="${j.signatures.engineer}">`:'';
+ let customerSig=j.signatures&&j.signatures.customer?`<img src="${j.signatures.customer}">`:'';
  let html=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(j.jobNo)} Report</title>
  <style>
  body{font-family:Arial,sans-serif;margin:0;color:#111827;background:#fff}
@@ -130,7 +165,7 @@ function generatePDFReport(){
  table{width:100%;border-collapse:collapse}td{border-bottom:1px solid #e5e7eb;padding:8px}td:first-child{font-weight:bold;color:#374151}
  .health{background:#eef6ff;border:1px solid #bfdbfe;border-radius:14px;padding:14px;white-space:pre-wrap;font-weight:bold}
  ul{margin:0;padding-left:20px}.photos{display:grid;grid-template-columns:1fr 1fr;gap:12px}.photoCard{border:1px solid #e5e7eb;border-radius:14px;padding:10px}.photoCard h4{margin:0 0 8px}.photoCard img{width:100%;max-height:260px;object-fit:cover;border-radius:10px}.empty{color:#64748b;background:#f9fafb}
- .signatures{display:grid;grid-template-columns:1fr 1fr;gap:12px}.sig{height:80px;border:1px dashed #94a3b8;border-radius:12px;margin-top:8px}
+ .signatures{display:grid;grid-template-columns:1fr 1fr;gap:12px}.sig{height:110px;border:1px dashed #94a3b8;border-radius:12px;margin-top:8px;display:flex;align-items:center;justify-content:center}.sig img{max-width:100%;max-height:100px}
  .footer{text-align:center;color:#64748b;margin-top:24px;font-size:12px}
  @media print{.report{padding:16px}.header{border-radius:0}.box{break-inside:avoid}.photoCard{break-inside:avoid}}
  </style></head><body><div class="report">
@@ -142,7 +177,7 @@ function generatePDFReport(){
  <div class="box"><h2>Checklist</h2><ul>${checks}</ul></div>
  <div class="box"><h2>Faults / Diagnosis</h2><p>${esc(j.faults)}</p><h2>Engineer Notes</h2><p>${esc(j.notes)}</p></div>
  <div class="box"><h2>Photo Record</h2><div class="photos">${photoHtml}</div></div>
- <div class="box"><h2>Signatures</h2><div class="signatures"><div>Engineer Signature<div class="sig"></div></div><div>Customer Signature<div class="sig"></div></div></div></div>
+ <div class="box"><h2>Signatures</h2><div class="signatures"><div>Engineer Signature<div class="sig">${engineerSig}</div></div><div>Customer Signature<div class="sig">${customerSig}</div></div></div></div>
  <div class="footer">Report generated by HeatPump Pro • Munster Heat Pump Services</div>
  </div><script>window.onload=function(){setTimeout(function(){window.print()},500)}<\/script></body></html>`;
  let win=window.open('','_blank');

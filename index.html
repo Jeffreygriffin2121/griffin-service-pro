@@ -35,13 +35,14 @@
   <section id="job" class="screen">
     <div class="top"><button class="back" onclick="go('home')">←</button><h2 id="jobHeading">New Job</h2></div>
     <div class="card">
-      <div class="progress"><span id="progressText">Step 1 of 5</span><div><i id="progressBar"></i></div></div>
+      <div class="progress"><span id="progressText">Step 1 of 6</span><div><i id="progressBar"></i></div></div>
       <div class="pillrow">
         <button class="pill active" onclick="showJobStep(1,this)">Customer</button>
         <button class="pill" onclick="showJobStep(2,this)">Equipment</button>
         <button class="pill" onclick="showJobStep(3,this)">Readings</button>
         <button class="pill" onclick="showJobStep(4,this)">Checklist</button>
         <button class="pill" onclick="showJobStep(5,this)">Photos</button>
+        <button class="pill" onclick="showJobStep(6,this)">Signatures</button>
       </div>
 
       <div id="jobStep1" class="jobStep active">
@@ -107,7 +108,23 @@
         <div class="photoBox"><b>🚰 Cylinder</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'cylinder')"><img id="cylinderPreview"></div>
         <div class="photoBox"><b>⚡ Electrical / Isolator</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'electrical')"><img id="electricalPreview"></div>
         <div class="photoBox"><b>📸 Finished Job</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'finishedJob')"><img id="finishedJobPreview"></div>
-        <button class="primary" onclick="saveJob()">Save Job</button>
+        <div class="twobuttons"><button class="secondary" onclick="showJobStep(4)">Back</button><button class="primary" onclick="showJobStep(6)">Next: Signatures</button></div>
+
+
+      <div id="jobStep6" class="jobStep">
+        <h3>Digital Signatures</h3>
+        <p class="hint">Sign with your finger or stylus. Signatures are saved with the job and included in the professional PDF.</p>
+        <div class="signatureBox">
+          <b>✍️ Engineer Signature</b>
+          <canvas id="engineerCanvas" class="sigCanvas"></canvas>
+          <button class="secondary smallBtn" onclick="clearSignature('engineer')">Clear Engineer Signature</button>
+        </div>
+        <div class="signatureBox">
+          <b>✍️ Customer Signature</b>
+          <canvas id="customerCanvas" class="sigCanvas"></canvas>
+          <button class="secondary smallBtn" onclick="clearSignature('customer')">Clear Customer Signature</button>
+        </div>
+        <div class="twobuttons"><button class="secondary" onclick="showJobStep(5)">Back</button><button class="primary" onclick="saveJob()">Complete / Save Job</button></div>
         <button class="secondary" onclick="exportReport()">Export Text Report</button>
         <button class="primary" style="background:#16a34a" onclick="generatePDFReport()">Generate Professional PDF</button>
         <button id="deleteBtn" class="primary danger hidden" onclick="deleteCurrentJob()">Delete Job</button>
