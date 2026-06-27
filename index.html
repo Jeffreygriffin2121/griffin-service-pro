@@ -7,100 +7,120 @@
 <meta name="apple-mobile-web-app-title" content="HeatPump Pro">
 <meta name="theme-color" content="#0b6efd">
 <title>HeatPump Pro</title>
-<style>
-:root{--blue:#0b6efd;--dark:#0f172a;--bg:#f3f5f8;--muted:#64748b;--card:#fff;--line:#e5e7eb;--good:#16a34a;--warn:#d97706;--bad:#dc2626}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#111827}.app{max-width:920px;margin:auto;padding:20px 16px 96px}.screen{display:none}.screen.active{display:block}.hero{background:linear-gradient(135deg,#071733,#0b6efd);color:white;border-radius:30px;padding:26px 24px;box-shadow:0 14px 35px #0002}.tag{font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.9}.hero h1{font-size:42px;line-height:1;margin:12px 0 8px}.hero p{margin:0;color:#dbeafe;font-size:17px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.stat{background:#ffffff18;border:1px solid #ffffff2e;border-radius:18px;padding:14px}.stat b{display:block;font-size:28px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}.card,.tile{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 8px 24px #00000010}.tile{text-align:left;min-height:112px;color:#111827}.tile span{font-size:25px}.tile b{display:block;font-size:21px;margin:8px 0;color:var(--blue)}.tile small{color:var(--muted);line-height:1.35}.top{display:flex;align-items:center;gap:12px;margin-bottom:14px}.back{border:0;background:white;border-radius:16px;padding:12px 16px;font-size:20px;box-shadow:0 4px 14px #0001}.primary,.secondary{border:0;border-radius:16px;padding:15px;font-weight:800;width:100%;margin-top:14px}.primary{background:var(--blue);color:white}.secondary{background:var(--dark);color:white}.danger{background:var(--bad);color:white}button{font:inherit}label{display:block;font-weight:700;margin:13px 0;color:#374151}input,textarea,select{width:100%;margin-top:7px;border:1px solid #d1d5db;border-radius:16px;padding:14px;font-size:16px;background:white}textarea{resize:vertical}.status{margin-top:12px;padding:14px;border-radius:16px;background:#eef6ff;border:1px solid #bfdbfe;color:#0f172a;font-weight:700;line-height:1.45}.badge{display:inline-block;margin-top:8px;padding:6px 10px;border-radius:999px;background:#e8f1ff;color:var(--blue);font-size:13px;font-weight:800}.badge.good{background:#dcfce7;color:#166534}.badge.warn{background:#fef3c7;color:#92400e}.badge.bad{background:#fee2e2;color:#991b1b}.list p{border-top:1px solid var(--line);padding:13px 0;margin:0;color:#4b5563}.list p:first-child{border-top:0}.module{margin:10px 0;padding:16px;border-radius:18px;background:#f9fafb;border:1px solid var(--line)}.photoBox{background:#f9fafb;border:1px solid var(--line);border-radius:18px;padding:14px;margin:10px 0}.photoBox b{display:block;margin-bottom:8px}.photoBox img{width:100%;max-height:220px;object-fit:cover;border-radius:14px;margin-top:10px;display:none}.tabs{position:fixed;bottom:12px;left:12px;right:12px;max-width:880px;margin:auto;background:#fffffff0;border:1px solid #ddd;border-radius:26px;display:grid;grid-template-columns:repeat(4,1fr);padding:8px;backdrop-filter:blur(10px);box-shadow:0 10px 28px #0001}.tabs button{border:0;background:transparent;padding:12px;border-radius:18px;color:var(--blue)}.tabs button.active{background:#e8f1ff;font-weight:800}.reportPreview{white-space:pre-wrap;background:#0f172a;color:#e5e7eb;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.45;max-height:360px;overflow:auto}.hint{color:var(--muted);font-size:14px;line-height:1.45}.sectionTitle{margin:24px 0 8px}.pillrow{display:flex;gap:8px;overflow:auto;padding:4px 0}.pill{white-space:nowrap;border:1px solid var(--line);background:white;border-radius:999px;padding:9px 12px;color:#334155}.sig{height:95px;background:white;border:1px dashed #94a3b8;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#64748b;margin-top:7px}
-@media(max-width:380px){.hero h1{font-size:36px}.grid{gap:10px}.card,.tile{padding:15px}}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="app">
-<section id="home" class="screen active">
-  <div class="hero">
-    <div class="tag">Munster Heat Pump Services</div>
-    <h1>HeatPump Pro</h1>
-    <p>Service • Repair • Commission • Report</p>
-    <div class="stats"><div class="stat"><small>Total Jobs</small><b id="totalJobs">0</b></div><div class="stat"><small>Customers</small><b id="totalCustomers">0</b></div></div>
-  </div>
-  <div class="grid">
-    <button class="tile" onclick="go('job')"><span>➕</span><b>New Job</b><small>Service, repair or commissioning</small></button>
-    <button class="tile" onclick="go('modules')"><span>▦</span><b>Modules</b><small>Panasonic active, more coming</small></button>
-    <button class="tile" onclick="go('customers')"><span>👤</span><b>Customers</b><small>Saved site records</small></button>
-    <button class="tile" onclick="go('tools')"><span>🧰</span><b>Toolbox</b><small>Engineer tools</small></button>
-  </div>
-  <div class="card"><h2>Recent Jobs</h2><div id="drafts" class="list">No jobs saved yet.</div></div>
-</section>
-<section id="job" class="screen">
-  <div class="top"><button class="back" onclick="go('home')">←</button><h2>New Job</h2></div>
-  <div class="card">
-    <label>Customer Name<input id="customer" autocomplete="name"></label>
-    <label>Site Address<textarea id="address" rows="3"></textarea></label>
-    <label>Contact Number / Email<input id="contact"></label>
-    <label>Job Type<select id="type"><option>Annual Service</option><option>Breakdown</option><option>Commissioning</option><option>Repair</option><option>Maintenance</option></select></label>
-    <label>Job Status<select id="jobStatus"><option>In Progress</option><option>Completed</option><option>Awaiting Parts</option><option>Call Back Required</option></select></label>
-    <label>Manufacturer<select id="maker"><option>Panasonic Aquarea</option><option>Daikin</option><option>Mitsubishi Electric</option><option>Samsung</option><option>NIBE</option><option>LG</option><option>Grant</option><option>Vaillant</option><option>Bosch</option></select></label>
-    <label>Model<input id="model"></label>
-    <label>Serial Number<input id="serial"></label>
-    <h3 class="sectionTitle">Service Readings</h3>
-    <label>Flow Temperature °C<input id="flowTemp" inputmode="decimal" oninput="updateHealth()"></label>
-    <label>Return Temperature °C<input id="returnTemp" inputmode="decimal" oninput="updateHealth()"></label>
-    <label>Delta T °C<input id="deltaT" readonly placeholder="Auto calculated"></label>
-    <label>Outdoor Temperature °C<input id="outdoorTemp" inputmode="decimal"></label>
-    <label>System Pressure Bar<input id="pressure" inputmode="decimal" oninput="updateHealth()"></label>
-    <div id="healthBox" class="status">System Health: Enter readings</div>
-    <h3 class="sectionTitle">Site Photo Record</h3>
-    <p class="hint">Take photos for a professional service record. Front of Property helps identify the site on future visits.</p>
-    <div class="photoBox"><b>🏡 Front of Property</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'frontProperty')"><img id="frontPropertyPreview"></div>
-    <div class="photoBox"><b>❄️ Outdoor Unit</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'outdoorUnit')"><img id="outdoorUnitPreview"></div>
-    <div class="photoBox"><b>🏷️ Serial Plate / Data Plate</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'serialPlate')"><img id="serialPlatePreview"></div>
-    <div class="photoBox"><b>🔥 Indoor Unit / Plant Room</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'plantRoom')"><img id="plantRoomPreview"></div>
-    <div class="photoBox"><b>🚰 Cylinder</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'cylinder')"><img id="cylinderPreview"></div>
-    <div class="photoBox"><b>⚡ Electrical / Isolator</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'electrical')"><img id="electricalPreview"></div>
-    <div class="photoBox"><b>📸 Finished Job</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'finishedJob')"><img id="finishedJobPreview"></div>
-    <h3 class="sectionTitle">Checklist</h3>
-    <label><input type="checkbox" class="check" value="Visual inspection completed"> Visual inspection completed</label>
-    <label><input type="checkbox" class="check" value="Y-strainer checked / cleaned"> Y-strainer checked / cleaned</label>
-    <label><input type="checkbox" class="check" value="Flow rate checked"> Flow rate checked</label>
-    <label><input type="checkbox" class="check" value="Electrical checks recorded"> Electrical checks recorded</label>
-    <label><input type="checkbox" class="check" value="Controls checked"> Controls checked</label>
-    <label><input type="checkbox" class="check" value="Outdoor coil inspected"> Outdoor coil inspected</label>
-    <label>Engineer Notes<textarea id="notes" rows="5"></textarea></label>
-    <h3 class="sectionTitle">Signatures</h3>
-    <label>Engineer Signature<div class="sig">Signature capture coming next</div></label>
-    <label>Customer Signature<div class="sig">Signature capture coming next</div></label>
-    <button class="primary" onclick="saveJob()">Start / Save Job</button>
-    <button class="secondary" onclick="exportReport()">Export Report</button>
-  </div>
-</section>
-<section id="customers" class="screen">
-  <div class="top"><button class="back" onclick="go('home')">←</button><h2>Customers</h2></div>
-  <div class="card"><div id="customersList" class="list">Saved customers will appear here.</div></div>
-</section>
-<section id="modules" class="screen">
-  <div class="top"><button class="back" onclick="go('home')">←</button><h2>Manufacturer Modules</h2></div>
-  <div class="card"><div class="module"><b>Panasonic Aquarea</b><br>Service checklist active</div><div class="module"><b>Mitsubishi Electric</b><br>Coming soon</div><div class="module"><b>Daikin</b><br>Coming next</div><div class="module"><b>Samsung</b><br>Coming soon</div><div class="module"><b>NIBE</b><br>Coming soon</div><div class="module"><b>LG / Grant / Vaillant / Bosch</b><br>Planned for Ireland and UK rollout</div></div>
-</section>
-<section id="tools" class="screen">
-  <div class="top"><button class="back" onclick="go('home')">←</button><h2>Engineer Toolbox</h2></div>
-  <div class="grid"><button class="tile" onclick="toolDeltaT()">🌡️<b>Delta T</b><small>Auto in job form</small></button><button class="tile">⚡<b>Electrical Tests</b><small>Record values</small></button><button class="tile">❄️<b>F-Gas Log</b><small>Leak records</small></button><button class="tile">📄<b>PDF Reports</b><small>Full PDF coming next</small></button></div>
-</section>
+  <section id="home" class="screen active">
+    <div class="hero">
+      <div class="tag">Munster Heat Pump Services</div>
+      <h1>HeatPump Pro</h1>
+      <p>Service • Repair • Commission • Report</p>
+      <div class="stats">
+        <div class="stat"><small>Total Jobs</small><b id="totalJobs">0</b></div>
+        <div class="stat"><small>Customers</small><b id="totalCustomers">0</b></div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <button class="tile" onclick="newJob()"><span>➕</span><b>New Job</b><small>Service, repair or commissioning</small></button>
+      <button class="tile" onclick="go('modules')"><span>▦</span><b>Modules</b><small>Manufacturer checklists</small></button>
+      <button class="tile" onclick="go('customers')"><span>👤</span><b>Customers</b><small>Saved site records</small></button>
+      <button class="tile" onclick="go('tools')"><span>🧰</span><b>Toolbox</b><small>Engineer tools</small></button>
+    </div>
+
+    <div class="card"><h2>Recent Jobs</h2><div id="drafts" class="list">No jobs saved yet.</div></div>
+  </section>
+
+  <section id="job" class="screen">
+    <div class="top"><button class="back" onclick="go('home')">←</button><h2 id="jobHeading">New Job</h2></div>
+    <div class="card">
+      <div class="progress"><span id="progressText">Step 1 of 5</span><div><i id="progressBar"></i></div></div>
+      <div class="pillrow">
+        <button class="pill active" onclick="showJobStep(1,this)">Customer</button>
+        <button class="pill" onclick="showJobStep(2,this)">Equipment</button>
+        <button class="pill" onclick="showJobStep(3,this)">Readings</button>
+        <button class="pill" onclick="showJobStep(4,this)">Checklist</button>
+        <button class="pill" onclick="showJobStep(5,this)">Photos</button>
+      </div>
+
+      <div id="jobStep1" class="jobStep active">
+        <h3>Customer Details</h3>
+        <label>Customer Name<input id="customer" autocomplete="name"></label>
+        <label>Site Address<textarea id="address" rows="3"></textarea></label>
+        <label>Contact Number / Email<input id="contact"></label>
+        <label>Job Type<select id="type"><option>Annual Service</option><option>Breakdown</option><option>Commissioning</option><option>Repair</option><option>Maintenance</option></select></label>
+        <label>Job Status<select id="jobStatus"><option>In Progress</option><option>Completed</option><option>Awaiting Parts</option><option>Call Back Required</option></select></label>
+        <button class="primary" onclick="showJobStep(2)">Next: Equipment</button>
+      </div>
+
+      <div id="jobStep2" class="jobStep">
+        <h3>Heat Pump Information</h3>
+        <label>Manufacturer<select id="maker"><option>Panasonic Aquarea</option><option>Daikin</option><option>Mitsubishi Electric</option><option>Samsung</option><option>NIBE</option><option>LG</option><option>Grant</option><option>Vaillant</option><option>Bosch</option></select></label>
+        <label>Model<input id="model"></label>
+        <label>Serial Number<input id="serial"></label>
+        <label>Installation Date<input id="installDate" type="date"></label>
+        <label>Installer / Original Contractor<input id="installer"></label>
+        <label>Controller / Firmware Version<input id="controllerVersion"></label>
+        <div class="twobuttons"><button class="secondary" onclick="showJobStep(1)">Back</button><button class="primary" onclick="showJobStep(3)">Next: Readings</button></div>
+      </div>
+
+      <div id="jobStep3" class="jobStep">
+        <h3>Service Readings</h3>
+        <label>Outdoor Temperature °C<input id="outdoorTemp" inputmode="decimal" oninput="updateHealth()"></label>
+        <label>Flow Temperature °C<input id="flowTemp" inputmode="decimal" oninput="updateHealth()"></label>
+        <label>Return Temperature °C<input id="returnTemp" inputmode="decimal" oninput="updateHealth()"></label>
+        <label>Delta T °C<input id="deltaT" readonly placeholder="Auto calculated"></label>
+        <label>Hot Water Temperature °C<input id="hotWaterTemp" inputmode="decimal" oninput="updateHealth()"></label>
+        <label>System Pressure Bar<input id="pressure" inputmode="decimal" oninput="updateHealth()"></label>
+        <label>Flow Rate L/min<input id="flowRate" inputmode="decimal" oninput="updateHealth()"></label>
+        <label>Compressor Frequency Hz<input id="compressorHz" inputmode="decimal"></label>
+        <label>Compressor Current A<input id="compressorAmps" inputmode="decimal"></label>
+        <div id="healthBox" class="status">System Health: Enter readings</div>
+        <div class="twobuttons"><button class="secondary" onclick="showJobStep(2)">Back</button><button class="primary" onclick="showJobStep(4)">Next: Checklist</button></div>
+      </div>
+
+      <div id="jobStep4" class="jobStep">
+        <h3>Service Checklist</h3>
+        <label><input type="checkbox" class="check" value="Visual inspection completed"> Visual inspection completed</label>
+        <label><input type="checkbox" class="check" value="Filter cleaned"> Filter cleaned</label>
+        <label><input type="checkbox" class="check" value="Y-strainer checked / cleaned"> Y-strainer checked / cleaned</label>
+        <label><input type="checkbox" class="check" value="Magnetic filter checked / cleaned"> Magnetic filter checked / cleaned</label>
+        <label><input type="checkbox" class="check" value="Flow rate checked"> Flow rate checked</label>
+        <label><input type="checkbox" class="check" value="Expansion vessel checked"> Expansion vessel checked</label>
+        <label><input type="checkbox" class="check" value="Safety valve checked"> Safety valve checked</label>
+        <label><input type="checkbox" class="check" value="Outdoor coil inspected"> Outdoor coil inspected</label>
+        <label><input type="checkbox" class="check" value="Electrical checks recorded"> Electrical checks recorded</label>
+        <label><input type="checkbox" class="check" value="Controls checked"> Controls checked</label>
+        <label>Fault Codes / Diagnosis<textarea id="faults" rows="3"></textarea></label>
+        <label>Engineer Notes<textarea id="notes" rows="5"></textarea></label>
+        <div class="twobuttons"><button class="secondary" onclick="showJobStep(3)">Back</button><button class="primary" onclick="showJobStep(5)">Next: Photos</button></div>
+      </div>
+
+      <div id="jobStep5" class="jobStep">
+        <h3>Site Photo Record</h3>
+        <p class="hint">Photos are compressed before saving so the job record stays reliable.</p>
+        <div class="photoBox"><b>🏡 Front of Property</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'frontProperty')"><img id="frontPropertyPreview"></div>
+        <div class="photoBox"><b>❄️ Outdoor Unit</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'outdoorUnit')"><img id="outdoorUnitPreview"></div>
+        <div class="photoBox"><b>🏷️ Serial Plate / Data Plate</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'serialPlate')"><img id="serialPlatePreview"></div>
+        <div class="photoBox"><b>🔥 Indoor Unit / Plant Room</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'plantRoom')"><img id="plantRoomPreview"></div>
+        <div class="photoBox"><b>🚰 Cylinder</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'cylinder')"><img id="cylinderPreview"></div>
+        <div class="photoBox"><b>⚡ Electrical / Isolator</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'electrical')"><img id="electricalPreview"></div>
+        <div class="photoBox"><b>📸 Finished Job</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'finishedJob')"><img id="finishedJobPreview"></div>
+        <button class="primary" onclick="saveJob()">Save Job</button>
+        <button class="secondary" onclick="exportReport()">Export Text Report</button>
+        <button class="primary" style="background:#16a34a" onclick="generatePDFReport()">Generate Professional PDF</button>
+        <button id="deleteBtn" class="primary danger hidden" onclick="deleteCurrentJob()">Delete Job</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="customers" class="screen"><div class="top"><button class="back" onclick="go('home')">←</button><h2>Customers</h2></div><div class="card"><div id="customersList" class="list">Saved customers will appear here.</div></div></section>
+  <section id="modules" class="screen"><div class="top"><button class="back" onclick="go('home')">←</button><h2>Manufacturer Modules</h2></div><div class="card"><div class="module"><b>Panasonic Aquarea</b><br>Service checklist active</div><div class="module"><b>Mitsubishi Electric</b><br>Coming soon</div><div class="module"><b>Daikin</b><br>Coming next</div><div class="module"><b>Samsung</b><br>Coming soon</div><div class="module"><b>NIBE</b><br>Coming soon</div></div></section>
+  <section id="tools" class="screen"><div class="top"><button class="back" onclick="go('home')">←</button><h2>Engineer Toolbox</h2></div><div class="grid"><button class="tile" onclick="go('job')">🌡️<b>Readings</b><small>Delta T and pressure checks</small></button><button class="tile">⚡<b>Electrical Tests</b><small>Coming next</small></button><button class="tile">❄️<b>F-Gas Log</b><small>Coming next</small></button><button class="tile" onclick="generatePDFReport()">📄<b>PDF Report</b><small>Generate from current job</small></button></div></section>
 </div>
+
 <nav class="tabs"><button class="active" onclick="go('home',this)">Home</button><button onclick="go('job',this)">Job</button><button onclick="go('modules',this)">Modules</button><button onclick="go('tools',this)">Tools</button></nav>
-<script>
-let photos={};
-function go(id,btn){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');window.scrollTo(0,0);render();}
-function savePhoto(event,key){let file=event.target.files[0];if(!file)return;let reader=new FileReader();reader.onload=function(e){photos[key]=e.target.result;let img=document.getElementById(key+'Preview');img.src=e.target.result;img.style.display='block'};reader.readAsDataURL(file)}
-function jobs(){return JSON.parse(localStorage.hpJobs||'[]')}
-function nextJobNumber(){return 'HP-'+String(jobs().length+1).padStart(4,'0')}
-function updateHealth(){let flow=parseFloat(flowTemp.value),ret=parseFloat(returnTemp.value),press=parseFloat(pressure.value),messages=[];if(!isNaN(flow)&&!isNaN(ret)){let dt=flow-ret;deltaT.value=dt.toFixed(1);if(dt>=3&&dt<=7)messages.push('✅ Delta T looks good');else if(dt<3)messages.push('⚠️ Delta T low - check flow rate or heat transfer');else messages.push('⚠️ Delta T high - check flow rate, pump speed or restrictions')}else deltaT.value='';if(!isNaN(press)){if(press>=1&&press<=2.5)messages.push('✅ System pressure acceptable');else messages.push('⚠️ System pressure needs checking')}healthBox.innerHTML=messages.length?'System Health:<br>'+messages.join('<br>'):'System Health: Enter readings'}
-function data(){return{jobNo:nextJobNumber(),customer:customer.value,address:address.value,contact:contact.value,type:type.value,status:jobStatus.value,maker:maker.value,model:model.value,serial:serial.value,flowTemp:flowTemp.value,returnTemp:returnTemp.value,deltaT:deltaT.value,outdoorTemp:outdoorTemp.value,pressure:pressure.value,health:healthBox.innerText,photos:photos,notes:notes.value,checks:[...document.querySelectorAll('.check:checked')].map(x=>x.value),date:new Date().toLocaleString()}}
-function saveJob(){updateHealth();let list=jobs();list.push(data());localStorage.hpJobs=JSON.stringify(list);photos={};render();alert('Job saved on this phone.');go('home')}
-function badgeClass(s){return s==='Completed'?'good':s==='Awaiting Parts'?'warn':s==='Call Back Required'?'bad':''}
-function render(){let list=jobs();totalJobs.textContent=list.length;totalCustomers.textContent=[...new Set(list.map(j=>(j.customer||'').trim()).filter(Boolean))].length;drafts.innerHTML=list.length?list.slice().reverse().map(j=>`<p><b>${j.jobNo||'HP-0000'} - ${j.customer||'Unnamed customer'}</b><br>${j.maker||''} • ${j.model||'No model'}<br>${j.type||''} • ${j.date||''}<br><span class="badge ${badgeClass(j.status)}">${j.status||'In Progress'}</span></p>`).join(''):'No jobs saved yet.';customersList.innerHTML=list.length?list.slice().reverse().map(j=>`<p><b>${j.customer||'Unnamed customer'}</b><br>${j.address||'No address saved'}<br>${j.contact||'No contact saved'}<br><small>${j.maker||''} • ${j.model||'No model'} • ${j.status||'In Progress'}</small></p>`).join(''):'Saved customers will appear here.'}
-function photoRecordText(){return['frontProperty:Front of Property','outdoorUnit:Outdoor Unit','serialPlate:Serial Plate','plantRoom:Plant Room','cylinder:Cylinder','electrical:Electrical','finishedJob:Finished Job'].map(x=>{let [k,n]=x.split(':');return photos[k]?'✓ '+n+' photo captured':'□ '+n+' photo not captured'}).join('\n')}
-function exportReport(){updateHealth();let j=data();let text=`MUNSTER HEAT PUMP SERVICES\nHEATPUMP PRO SERVICE REPORT\n\nJob Number: ${j.jobNo}\nDate: ${j.date}\n\nCUSTOMER DETAILS\nCustomer: ${j.customer}\nAddress: ${j.address}\nContact: ${j.contact}\n\nSYSTEM DETAILS\nJob Type: ${j.type}\nJob Status: ${j.status}\nManufacturer: ${j.maker}\nModel: ${j.model}\nSerial Number: ${j.serial}\n\nSERVICE READINGS\nFlow Temperature: ${j.flowTemp} °C\nReturn Temperature: ${j.returnTemp} °C\nDelta T: ${j.deltaT} °C\nOutdoor Temperature: ${j.outdoorTemp} °C\nSystem Pressure: ${j.pressure} bar\n\nSYSTEM HEALTH\n${j.health}\n\nPHOTO RECORD\n${photoRecordText()}\n\nSERVICE CHECKS\n${j.checks.join('\n')}\n\nENGINEER NOTES\n${j.notes}\n\nReport generated by HeatPump Pro`;let blob=new Blob([text],{type:'text/plain'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${j.jobNo}-HeatPump-Pro-Report.txt`;a.click()}
-function toolDeltaT(){go('job')}
-render();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
