@@ -1,0 +1,97 @@
+const photoItems=[['frontProperty','🏡 Front of Property'],['outdoorUnit','❄️ Outdoor Unit'],['serialPlate','🏷️ Serial Plate / Data Plate'],['plantRoom','🔥 Indoor Unit / Plant Room'],['cylinder','🚰 Cylinder'],['electrical','⚡ Electrical / Isolator'],['finishedJob','📸 Finished Job']];
+let photoStatus={};
+
+function go(id,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  window.scrollTo(0,0);
+  render();
+}
+
+function initPhotos(){
+  const holder=document.getElementById('photoList');
+  if(!holder)return;
+  holder.innerHTML=photoItems.map(([key,name])=>`<div class="photoBox"><b>${name}</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'${key}')"><img id="${key}Preview"></div>`).join('');
+}
+
+function savePhoto(event,key){
+  const file=event.target.files[0];
+  if(!file)return;
+  photoStatus[key]=true;
+  const img=document.getElementById(key+'Preview');
+  img.src=URL.createObjectURL(file);
+  img.style.display='block';
+}
+
+function jobs(){
+  try{return JSON.parse(localStorage.hpJobs||'[]')}catch(e){return []}
+}
+function nextJobNumber(){return 'HP-'+String(jobs().length+1).padStart(4,'0')}
+
+function updateHealth(){
+  const flow=parseFloat(flowTemp.value), ret=parseFloat(returnTemp.value), press=parseFloat(pressure.value);
+  const messages=[];
+  if(!isNaN(flow)&&!isNaN(ret)){
+    const dt=flow-ret; deltaT.value=dt.toFixed(1);
+    if(dt>=3&&dt<=7)messages.push('✅ Delta T looks good');
+    else if(dt<3)messages.push('⚠️ Delta T low - check flow rate or heat transfer');
+    else messages.push('⚠️ Delta T high - check flow rate, pump speed or restrictions');
+  }else deltaT.value='';
+  if(!isNaN(press)){
+    if(press>=1&&press<=2.5)messages.push('✅ System pressure acceptable');
+    else messages.push('⚠️ System pressure needs checking');
+  }
+  healthBox.innerHTML=messages.length?'System Health:<br>'+messages.join('<br>'):'System Health: Enter readings';
+}
+
+function data(){
+  return {jobNo:nextJobNumber(),customer:customer.value,address:address.value,contact:contact.value,type:type.value,status:jobStatus.value,maker:maker.value,model:model.value,serial:serial.value,flowTemp:flowTemp.value,returnTemp:returnTemp.value,deltaT:deltaT.value,outdoorTemp:outdoorTemp.value,pressure:pressure.value,health:healthBox.innerText,photoStatus:{...photoStatus},notes:notes.value,checks:[...document.querySelectorAll('.check:checked')].map(x=>x.value),date:new Date().toLocaleString()};
+}
+
+function saveJob(){
+  updateHealth();
+  const list=jobs();
+  const item=data();
+  try{
+    list.push(item);
+    localStorage.hpJobs=JSON.stringify(list);
+  }catch(e){
+    alert('Save failed because browser storage is full. Open Toolbox and tap Clear Saved Data, then try again.');
+    return;
+  }
+  photoStatus={};
+  render();
+  alert('Job saved on this device.');
+  go('home');
+}
+
+function badgeClass(s){return s==='Completed'?'good':s==='Awaiting Parts'?'warn':s==='Call Back Required'?'bad':''}
+function uniqueCustomers(list){return [...new Set(list.map(j=>(j.customer||'').trim()).filter(Boolean))]}
+
+function render(){
+  const list=jobs();
+  totalJobs.textContent=list.length;
+  totalCustomers.textContent=uniqueCustomers(list).length;
+  jobsList.innerHTML=list.length?list.slice().reverse().map(j=>`<p><b>${j.jobNo||'HP-0000'} - ${j.customer||'Unnamed customer'}</b><br>${j.maker||''} • ${j.model||'No model'}<br>${j.type||''} • ${j.date||''}<br><span class="badge ${badgeClass(j.status)}">${j.status||'In Progress'}</span></p>`).join(''):'No jobs saved yet.';
+  customersList.innerHTML=list.length?list.slice().reverse().map(j=>`<p><b>${j.customer||'Unnamed customer'}</b><br>${j.address||'No address saved'}<br>${j.contact||'No contact saved'}<br><small>${j.maker||''} • ${j.model||'No model'} • ${j.status||'In Progress'}</small></p>`).join(''):'Saved customers will appear here.';
+}
+
+function photoRecordText(status=photoStatus){
+  return photoItems.map(([key,name])=>(status&&status[key]?'✓ ':'□ ')+name.replace(/^[^ ]+ /,'')).join('\n');
+}
+
+function exportReport(){
+  updateHealth(); const j=data();
+  const text=`MUNSTER HEAT PUMP SERVICES\nHEATPUMP PRO SERVICE REPORT\n\nJob Number: ${j.jobNo}\nDate: ${j.date}\n\nCUSTOMER DETAILS\nCustomer: ${j.customer}\nAddress: ${j.address}\nContact: ${j.contact}\n\nSYSTEM DETAILS\nJob Type: ${j.type}\nJob Status: ${j.status}\nManufacturer: ${j.maker}\nModel: ${j.model}\nSerial Number: ${j.serial}\n\nSERVICE READINGS\nFlow Temperature: ${j.flowTemp} °C\nReturn Temperature: ${j.returnTemp} °C\nDelta T: ${j.deltaT} °C\nOutdoor Temperature: ${j.outdoorTemp} °C\nSystem Pressure: ${j.pressure} bar\n\nSYSTEM HEALTH\n${j.health}\n\nPHOTO RECORD\n${photoRecordText(j.photoStatus)}\n\nSERVICE CHECKS\n${j.checks.join('\n')}\n\nENGINEER NOTES\n${j.notes}\n\nReport generated by HeatPump Pro`;
+  const blob=new Blob([text],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=`${j.jobNo}-HeatPump-Pro-Report.txt`; a.click();
+}
+
+function clearSavedData(){
+  if(confirm('Clear all saved test jobs on this device?')){localStorage.removeItem('hpJobs');render();alert('Saved data cleared.');}
+}
+
+document.addEventListener('DOMContentLoaded',()=>{initPhotos();render();});
