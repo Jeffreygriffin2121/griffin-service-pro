@@ -6,51 +6,122 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="HeatPump Pro">
 <meta name="theme-color" content="#0b6efd">
-<title>HeatPump Pro v3</title>
+<title>HeatPump Pro v3.2</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="app">
-<section id="dashboard" class="screen active">
+<section id="home" class="screen active">
   <div class="hero">
     <div class="tag">Built by Engineers • Connected for the Industry</div>
     <h1>HeatPump Pro</h1>
-    <p>Professional platform for heat pump engineers</p>
+    <p>Manufacturer Workflow Engine</p>
     <div class="stats">
-      <div class="stat"><small>Total Jobs</small><b id="totalJobs">0</b></div>
-      <div class="stat"><small>Customers</small><b id="totalCustomers">0</b></div>
-      <div class="stat"><small>Reports</small><b id="totalReports">0</b></div>
-      <div class="stat"><small>Awaiting Parts</small><b id="awaitingParts">0</b></div>
+      <div><small>Total Jobs</small><b id="totalJobs">0</b></div>
+      <div><small>Customers</small><b id="totalCustomers">0</b></div>
+      <div><small>Passports</small><b id="totalPassports">0</b></div>
+      <div><small>Awaiting Parts</small><b id="awaitingParts">0</b></div>
     </div>
   </div>
   <div class="quick">
     <button onclick="newJob()">➕ New Job</button>
-    <button onclick="go('manufacturerHub')">🏭 Manufacturer Hub</button>
+    <button onclick="newJob();step(2)">🏭 Manufacturer Workflow</button>
     <button onclick="go('passport')">🛂 Heat Pump Passport</button>
     <button onclick="go('thermaiq')">🤖 ThermaIQ</button>
   </div>
   <div class="card"><h2>Recent Jobs</h2><div id="recentJobs" class="list">No jobs saved yet.</div></div>
 </section>
+
 <section id="job" class="screen">
-  <div class="top"><button class="back" onclick="go('dashboard')">←</button><h2 id="jobHeading">New Job</h2></div>
+  <div class="top"><button class="back" onclick="go('home')">←</button><h2 id="jobTitle">New Job</h2></div>
   <div class="card">
-    <div class="progress"><span id="progressText">Step 1 of 6</span><div><i id="progressBar"></i></div></div>
-    <div class="pillrow">
-      <button class="pill active" onclick="showJobStep(1,this)">Customer</button><button class="pill" onclick="showJobStep(2,this)">Equipment</button><button class="pill" onclick="showJobStep(3,this)">Readings</button><button class="pill" onclick="showJobStep(4,this)">Checklist</button><button class="pill" onclick="showJobStep(5,this)">Photos</button><button class="pill" onclick="showJobStep(6,this)">Signatures</button>
+    <div class="progress"><span id="progressText">Step 1 of 7</span><div><i id="progressBar"></i></div></div>
+    <div class="pills">
+      <button class="pill active" onclick="step(1,this)">Customer</button>
+      <button class="pill" onclick="step(2,this)">Equipment</button>
+      <button class="pill" onclick="step(3,this)">Readings</button>
+      <button class="pill" onclick="step(4,this)">Workflow</button>
+      <button class="pill" onclick="step(5,this)">Photos</button>
+      <button class="pill" onclick="step(6,this)">Sign</button>
+      <button class="pill" onclick="step(7,this)">Complete</button>
     </div>
-    <div id="jobStep1" class="jobStep active"><h3>Customer Details</h3><label>Customer Name<input id="customer"></label><label>Site Address<textarea id="address" rows="3"></textarea></label><label>Contact Number / Email<input id="contact"></label><label>Job Type<select id="type"><option>Annual Service</option><option>Breakdown</option><option>Commissioning</option><option>Repair</option><option>Maintenance</option></select></label><label>Job Status<select id="jobStatus"><option>In Progress</option><option>Completed</option><option>Awaiting Parts</option><option>Call Back Required</option></select></label><button class="primary" onclick="showJobStep(2)">Next: Equipment</button></div>
-    <div id="jobStep2" class="jobStep"><h3>Equipment Details</h3><label>Manufacturer<select id="maker" onchange="setManufacturerContext()"><option>Panasonic Aquarea</option><option>Mitsubishi Electric</option><option>Daikin</option><option>Samsung</option><option>NIBE</option><option>LG</option><option>Grant</option><option>Vaillant</option><option>Bosch</option><option>Hitachi</option></select></label><label>Model<input id="model"></label><label>Serial Number<input id="serial"></label><label>Installation Date<input id="installDate" type="date"></label><label>Controller / Firmware Version<input id="controllerVersion"></label><div class="twobuttons"><button class="secondary" onclick="showJobStep(1)">Back</button><button class="primary" onclick="showJobStep(3)">Next: Readings</button></div></div>
-    <div id="jobStep3" class="jobStep"><h3>Service Readings</h3><label>Outdoor Temperature °C<input id="outdoorTemp" inputmode="decimal" oninput="updateHealth()"></label><label>Flow Temperature °C<input id="flowTemp" inputmode="decimal" oninput="updateHealth()"></label><label>Return Temperature °C<input id="returnTemp" inputmode="decimal" oninput="updateHealth()"></label><label>Delta T °C<input id="deltaT" readonly placeholder="Auto calculated"></label><label>Hot Water Temperature °C<input id="hotWaterTemp" inputmode="decimal" oninput="updateHealth()"></label><label>System Pressure Bar<input id="pressure" inputmode="decimal" oninput="updateHealth()"></label><label>Flow Rate L/min<input id="flowRate" inputmode="decimal" oninput="updateHealth()"></label><div id="healthBox" class="status">System Health: Enter readings</div><div class="twobuttons"><button class="secondary" onclick="showJobStep(2)">Back</button><button class="primary" onclick="showJobStep(4)">Next: Checklist</button></div></div>
-    <div id="jobStep4" class="jobStep"><h3>Service Checklist</h3><div id="dynamicChecklist"></div><label>Fault Codes / Diagnosis<textarea id="faults" rows="3"></textarea></label><label>Engineer Notes<textarea id="notes" rows="5"></textarea></label><div class="twobuttons"><button class="secondary" onclick="showJobStep(3)">Back</button><button class="primary" onclick="showJobStep(5)">Next: Photos</button></div></div>
-    <div id="jobStep5" class="jobStep"><h3>Photo Record</h3><div class="photoBox"><b>🏡 Front of Property</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'frontProperty')"><img id="frontPropertyPreview"></div><div class="photoBox"><b>❄️ Outdoor Unit</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'outdoorUnit')"><img id="outdoorUnitPreview"></div><div class="photoBox"><b>🏷️ Serial/Data Plate</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'serialPlate')"><img id="serialPlatePreview"></div><div class="photoBox"><b>🔥 Indoor Unit / Plant Room</b><input type="file" accept="image/*" capture="environment" onchange="savePhoto(event,'plantRoom')"><img id="plantRoomPreview"></div><div class="twobuttons"><button class="secondary" onclick="showJobStep(4)">Back</button><button class="primary" onclick="showJobStep(6)">Next: Signatures</button></div></div>
-    <div id="jobStep6" class="jobStep"><h3>Digital Signatures</h3><div class="signatureBox"><b>Engineer Signature</b><canvas id="engineerCanvas" class="sigCanvas"></canvas><button class="secondary smallBtn" onclick="clearSignature('engineer')">Clear Engineer Signature</button></div><div class="signatureBox"><b>Customer Signature</b><canvas id="customerCanvas" class="sigCanvas"></canvas><button class="secondary smallBtn" onclick="clearSignature('customer')">Clear Customer Signature</button></div><button class="primary" onclick="saveJob()">Complete / Save Job</button><button class="secondary" onclick="generatePDFReport()">Generate Professional Report</button><button id="deleteBtn" class="primary danger hidden" onclick="deleteCurrentJob()">Delete Job</button></div>
+
+    <div id="s1" class="jobStep active">
+      <h3>Customer Details</h3>
+      <label>Customer Name<input id="customer"></label>
+      <label>Address<textarea id="address" rows="3"></textarea></label>
+      <label>County<input id="county"></label>
+      <label>Eircode<input id="eircode"></label>
+      <label>Contact<input id="contact"></label>
+      <label>Job Type<select id="type" onchange="renderWorkflow()"><option>Annual Service</option><option>Commissioning</option><option>Warranty Validation</option><option>Breakdown</option><option>Repair</option></select></label>
+      <label>Job Status<select id="status"><option>In Progress</option><option>Completed</option><option>Awaiting Parts</option><option>Call Back Required</option></select></label>
+      <button class="primary" onclick="step(2)">Next</button>
+    </div>
+
+    <div id="s2" class="jobStep">
+      <h3>Equipment Details</h3>
+      <label>Manufacturer<select id="maker" onchange="renderWorkflow()"><option>Panasonic Aquarea</option><option>Mitsubishi Electric</option><option>Firebird</option><option>Joule / Kodiak</option><option>Hitachi</option><option>Daikin</option><option>Samsung</option><option>NIBE</option><option>LG</option><option>Grant</option><option>Vaillant</option><option>Bosch</option></select></label>
+      <label>Heat Pump Model<input id="model"></label>
+      <label>Heat Pump Serial Number<input id="serial"></label>
+      <label>Cylinder Model<input id="cylinderModel"></label>
+      <label>Cylinder Serial Number<input id="cylinderSerial"></label>
+      <label>Installation Date<input id="installDate" type="date"></label>
+      <label>Installer / Company<input id="installer"></label>
+      <label>Engineer<input id="engineer" value="Jeffrey Griffin"></label>
+      <div class="twobuttons"><button class="secondary" onclick="step(1)">Back</button><button class="primary" onclick="step(3)">Next</button></div>
+    </div>
+
+    <div id="s3" class="jobStep">
+      <h3>Readings</h3>
+      <label>Outdoor Temp °C<input id="outdoorTemp" inputmode="decimal" oninput="health()"></label>
+      <label>Flow Temp °C<input id="flowTemp" inputmode="decimal" oninput="health()"></label>
+      <label>Return Temp °C<input id="returnTemp" inputmode="decimal" oninput="health()"></label>
+      <label>Delta T °C<input id="deltaT" readonly></label>
+      <label>Hot Water Temp °C<input id="hotWaterTemp" inputmode="decimal" oninput="health()"></label>
+      <label>Pressure Bar<input id="pressure" inputmode="decimal" oninput="health()"></label>
+      <label>Flow Rate L/min<input id="flowRate" inputmode="decimal" oninput="health()"></label>
+      <label>Voltage<input id="voltage" inputmode="decimal"></label>
+      <label>Current Amps<input id="amps" inputmode="decimal"></label>
+      <div id="healthBox" class="statusbox">System Health: Enter readings</div>
+      <div class="twobuttons"><button class="secondary" onclick="step(2)">Back</button><button class="primary" onclick="step(4)">Next</button></div>
+    </div>
+
+    <div id="s4" class="jobStep">
+      <h3 id="workflowTitle">Manufacturer Workflow</h3>
+      <p class="hint" id="workflowNote"></p>
+      <div id="workflow"></div>
+      <label>Fault Codes / Diagnosis<textarea id="faults" rows="3"></textarea></label>
+      <label>Engineer Notes<textarea id="notes" rows="5"></textarea></label>
+      <div class="twobuttons"><button class="secondary" onclick="step(3)">Back</button><button class="primary" onclick="step(5)">Next</button></div>
+    </div>
+
+    <div id="s5" class="jobStep">
+      <h3>Smart Photo Record</h3>
+      <div id="photos"></div>
+      <div class="twobuttons"><button class="secondary" onclick="step(4)">Back</button><button class="primary" onclick="step(6)">Next</button></div>
+    </div>
+
+    <div id="s6" class="jobStep">
+      <h3>Digital Signatures</h3>
+      <div class="sigbox"><b>Engineer Signature</b><canvas id="engineerCanvas"></canvas><button class="secondary small" onclick="clearSig('engineer')">Clear</button></div>
+      <div class="sigbox"><b>Customer Signature</b><canvas id="customerCanvas"></canvas><button class="secondary small" onclick="clearSig('customer')">Clear</button></div>
+      <div class="twobuttons"><button class="secondary" onclick="step(5)">Back</button><button class="primary" onclick="step(7)">Completion Check</button></div>
+    </div>
+
+    <div id="s7" class="jobStep">
+      <h3>Smart Completion Assistant</h3>
+      <div id="completion" class="statusbox"></div>
+      <button class="primary" onclick="saveJob()">Complete / Save Job</button>
+      <button class="secondary" onclick="manufacturerReport()">Manufacturer-Style Report</button>
+      <button class="secondary" onclick="proReport()">HeatPump Pro Report</button>
+    </div>
   </div>
 </section>
-<section id="manufacturerHub" class="screen"><div class="top"><button class="back" onclick="go('dashboard')">←</button><h2>Manufacturer Hub</h2></div><div class="manufacturerGrid" id="manufacturerTiles"></div></section>
-<section id="manufacturerDetail" class="screen"><div class="top"><button class="back" onclick="go('manufacturerHub')">←</button><h2 id="manufacturerTitle">Manufacturer</h2></div><div class="card"><h3>Workflows</h3><button class="primary" onclick="newJob()">Start Service Workflow</button><button class="secondary">Commissioning Workflow Coming Soon</button><button class="secondary">Fault Code Library Coming Soon</button><button class="secondary">Official Links Coming Soon</button></div></section>
-<section id="passport" class="screen"><div class="top"><button class="back" onclick="go('dashboard')">←</button><h2>Heat Pump Passport</h2></div><div class="card"><h3>Digital Lifetime Record</h3><p class="hint">Permanent system record: installation, commissioning, services, photos, warranty, parts replaced and performance history.</p><div id="passportList" class="list">No passport records yet.</div></div></section>
-<section id="thermaiq" class="screen"><div class="top"><button class="back" onclick="go('dashboard')">←</button><h2>ThermaIQ</h2></div><div class="card"><h3>Intelligent Engineering Assistant</h3><p class="hint">ThermaIQ foundations are in place. First guidance appears in the System Health box based on readings.</p><div class="status">Coming next: manufacturer-specific diagnostics and fault guidance.</div></div></section>
+
+<section id="passport" class="screen"><div class="top"><button class="back" onclick="go('home')">←</button><h2>Heat Pump Passport</h2></div><div class="card"><div id="passportList" class="list">No passports yet.</div></div></section>
+<section id="thermaiq" class="screen"><div class="top"><button class="back" onclick="go('home')">←</button><h2>ThermaIQ</h2></div><div class="card"><h3>Engineering Intelligence</h3><p class="hint">Manufacturer-specific guidance comes next. Readings guidance appears in System Health.</p></div></section>
 </div>
-<nav class="tabs"><button class="active" onclick="go('dashboard',this)">Home</button><button onclick="newJob()">Job</button><button onclick="go('manufacturerHub',this)">Makers</button><button onclick="go('thermaiq',this)">ThermaIQ</button></nav>
+<nav><button onclick="go('home')">Home</button><button onclick="newJob()">Job</button><button onclick="newJob();step(2)">Workflow</button><button onclick="go('passport')">Passport</button></nav>
 <script src="app.js"></script>
-</body></html>
+</body>
+</html>
