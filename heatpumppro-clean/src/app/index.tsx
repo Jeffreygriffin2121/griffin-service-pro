@@ -19,7 +19,7 @@ const summaryCards = [
 
 const quickActions: QuickAction[] = [
   {
-    title: 'Fault Finder',
+    title: '🛠 Fault Finder',
     subtitle: 'Cross-brand diagnostics',
     icon: '🛠️',
     accent: '#2563eb',
@@ -108,7 +108,7 @@ function DashboardTile({ action }: { action: QuickAction }) {
   const isEnabled = Boolean(action.path);
 
   const handlePress = () => {
-    if (action.title === 'Fault Finder') {
+    if (action.path === '/fault-finder') {
       router.push('/fault-finder');
       return;
     }
@@ -166,7 +166,7 @@ export default function HomeScreen() {
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.grid}>
           {quickActions.map((action) =>
-            action.title === 'Fault Finder' ? (
+            action.path === '/fault-finder' ? (
               <Pressable
                 key={action.title}
                 style={[styles.tile, !action.path && styles.tileDisabled]}
