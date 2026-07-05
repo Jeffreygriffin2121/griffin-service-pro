@@ -30,48 +30,56 @@ const quickActions: QuickAction[] = [
     subtitle: 'Step-by-step inspection',
     icon: '✅',
     accent: '#0f766e',
+    path: '/coming-soon',
   },
   {
     title: 'Calculators',
     subtitle: 'COP, flow and sizing',
     icon: '🧮',
     accent: '#7c3aed',
+    path: '/coming-soon',
   },
   {
     title: 'AI Diagnostics',
     subtitle: 'Guided support',
     icon: '🤖',
     accent: '#ea580c',
+    path: '/coming-soon',
   },
   {
     title: 'Manuals & Wiring',
     subtitle: 'Reference library',
     icon: '📚',
     accent: '#0369a1',
+    path: '/coming-soon',
   },
   {
     title: 'Parts Finder',
     subtitle: 'Supplier lookup',
     icon: '📦',
     accent: '#be185d',
+    path: '/coming-soon',
   },
   {
     title: 'Service Reports',
     subtitle: 'Digital job packs',
     icon: '📄',
     accent: '#475569',
+    path: '/coming-soon',
   },
   {
     title: 'Commissioning',
     subtitle: 'Install sign-off',
     icon: '🚀',
     accent: '#0891b2',
+    path: '/coming-soon',
   },
   {
     title: 'Recent Jobs',
     subtitle: 'Latest visits',
     icon: '🕒',
     accent: '#64748b',
+    path: '/coming-soon',
   },
 ];
 
@@ -99,15 +107,22 @@ const timelineEntries = [
 function DashboardTile({ action }: { action: QuickAction }) {
   const isEnabled = Boolean(action.path);
 
+  const handlePress = () => {
+    if (action.title === 'Fault Finder') {
+      router.push('/fault-finder');
+      return;
+    }
+
+    if (action.path) {
+      router.push(action.path);
+    }
+  };
+
   return (
     <Pressable
       key={action.title}
       style={[styles.tile, !isEnabled && styles.tileDisabled]}
-      onPress={() => {
-        if (action.path) {
-          router.push(action.path as never);
-        }
-      }}>
+      onPress={handlePress}>
       <View style={[styles.tileIconWrap, { backgroundColor: `${action.accent}14` }]}>
         <Text style={styles.tileEmoji}>{action.icon}</Text>
       </View>
@@ -150,9 +165,23 @@ export default function HomeScreen() {
       <View style={styles.sectionWrap}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.grid}>
-          {quickActions.map((action) => (
-            <DashboardTile key={action.title} action={action} />
-          ))}
+          {quickActions.map((action) =>
+            action.title === 'Fault Finder' ? (
+              <Pressable
+                key={action.title}
+                style={[styles.tile, !action.path && styles.tileDisabled]}
+                onPress={() => router.push('/fault-finder')}>
+                <View style={[styles.tileIconWrap, { backgroundColor: `${action.accent}14` }]}> 
+                  <Text style={styles.tileEmoji}>{action.icon}</Text>
+                </View>
+                <Text style={styles.tileTitle}>{action.title}</Text>
+                <Text style={styles.tileSubtitle}>{action.subtitle}</Text>
+                {!action.path ? <Text style={styles.tileBadge}>Coming soon</Text> : null}
+              </Pressable>
+            ) : (
+              <DashboardTile key={action.title} action={action} />
+            ),
+          )}
         </View>
       </View>
 
