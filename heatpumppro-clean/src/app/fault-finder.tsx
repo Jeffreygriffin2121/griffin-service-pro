@@ -1,180 +1,145 @@
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-const manufacturers = ['Samsung', 'Panasonic', 'Daikin', 'Vaillant', 'Mitsubishi Electric'];
+const manufacturers = [
+  'Panasonic',
+  'Daikin',
+  'Mitsubishi Electric',
+  'Samsung',
+  'LG',
+  'Grant',
+  'NIBE',
+  'Hitachi',
+  'Vaillant',
+  'Viessmann',
+  'Other',
+];
 
-type FaultEntry = {
-  meaning: string;
-  likelyCauses: string[];
-  diagnosticSteps: string[];
-  likelyParts: string[];
-  supplierLink: string;
-};
-
-const faultData: Record<string, Record<string, FaultEntry>> = {
-  Samsung: {
-    E911: {
-      meaning: 'Communication fault between the indoor and outdoor units.',
-      likelyCauses: ['Loose or damaged control wiring', 'Poor earth connection', 'Main PCB communication issue'],
-      diagnosticSteps: [
-        'Confirm the unit is powered correctly and the display is stable.',
-        'Inspect the communication cable between indoor and outdoor sections.',
-        'Check for corrosion or loose terminals at the control board.',
-      ],
-      likelyParts: ['Communication cable', 'Main control board', 'Terminal block'],
-      supplierLink: 'Supplier link placeholder',
-    },
-  },
-  Panasonic: {
-    H62: {
-      meaning: 'Outdoor unit high-pressure protection or pressure-related trip.',
-      likelyCauses: ['Blocked condenser coil', 'Low refrigerant charge', 'Fan motor issue'],
-      diagnosticSteps: [
-        'Inspect the outdoor coil for dirt or restricted airflow.',
-        'Verify refrigerant charge and pressure readings.',
-        'Check the fan operation and motor current draw.',
-      ],
-      likelyParts: ['Condenser fan motor', 'Pressure sensor', 'Filter drier'],
-      supplierLink: 'Supplier link placeholder',
-    },
-  },
-  Daikin: {
-    U4: {
-      meaning: 'Indoor unit communication or signal fault.',
-      likelyCauses: ['Intermittent wiring fault', 'Controller board fault', 'Signal interference'],
-      diagnosticSteps: [
-        'Check the indoor and outdoor control wiring for damage.',
-        'Inspect the controller PCB for signs of overheating.',
-        'Test the system after resetting and reinitialising the control.',
-      ],
-      likelyParts: ['Indoor PCB', 'Wiring harness', 'Controller'],
-      supplierLink: 'Supplier link placeholder',
-    },
-  },
-  Vaillant: {
-    F75: {
-      meaning: 'Flow temperature or hydraulic regulation issue.',
-      likelyCauses: ['Blocked heat exchanger', 'Pump issue', 'Incorrect sensor reading'],
-      diagnosticSteps: [
-        'Review the flow and return temperatures against the setpoint.',
-        'Check for circulation issues and pump operation.',
-        'Inspect the temperature sensor and wiring.',
-      ],
-      likelyParts: ['Temperature sensor', 'Circulation pump', 'Flow sensor'],
-      supplierLink: 'Supplier link placeholder',
-    },
-  },
-  'Mitsubishi Electric': {
-    U1: {
-      meaning: 'Outdoor unit communication or inverter drive fault.',
-      likelyCauses: ['Power supply issue', 'Drive board fault', 'Loose connector'],
-      diagnosticSteps: [
-        'Measure the supply voltage and check for dips.',
-        'Inspect connectors and harness routing.',
-        'Verify the inverter board and cooling fan status.',
-      ],
-      likelyParts: ['Inverter board', 'Power connector', 'Fan assembly'],
-      supplierLink: 'Supplier link placeholder',
-    },
-  },
+type SearchResult = {
+  title: string;
+  summary: string;
+  checklist: string[];
 };
 
 export default function FaultFinderScreen() {
-  const [selectedManufacturer, setSelectedManufacturer] = useState('Samsung');
-  const [query, setQuery] = useState('');
-  const [result, setResult] = useState<null | {
-    code: string;
-    meaning: string;
-    likelyCauses: string[];
-    diagnosticSteps: string[];
-    likelyParts: string[];
-    supplierLink: string;
-  }>(null);
+  const [selectedManufacturer, setSelectedManufacturer] = useState('');
+  const [model, setModel] = useState('');
+  const [faultCode, setFaultCode] = useState('');
+  const [symptom, setSymptom] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [result, setResult] = useState<SearchResult | null>(null);
 
   const handleSearch = () => {
-    const code = query.trim().toUpperCase();
-    const entry = faultData[selectedManufacturer]?.[code];
+    const hasManufacturer = selectedManufacturer.trim().length > 0;
+    const hasFaultCode = faultCode.trim().length > 0;
+    const hasSymptom = symptom.trim().length > 0;
 
-    if (entry) {
-      setResult({ code, ...entry });
-    } else {
+    if (!hasManufacturer || (!hasFaultCode && !hasSymptom)) {
+      setErrorMessage('Please enter a manufacturer and either a fault code or symptom.');
       setResult(null);
+      return;
     }
+
+    const diagnosticFocus = hasFaultCode
+      ? `Fault code ${faultCode.trim().toUpperCase()} for ${selectedManufacturer}`
+      : `Reported symptom for ${selectedManufacturer}`;
+
+    setErrorMessage('');
+    setResult({
+      title: `${selectedManufacturer} diagnostic review`,
+      summary: `A professional diagnostic workflow is ready for ${diagnosticFocus}. ${model ? `Model reference: ${model}.` : ''}`.trim(),
+      checklist: [
+        'Confirm the unit is powered correctly and the thermostat is calling for heat.',
+        'Inspect the installation and wiring for loose terminals or damaged insulation.',
+        'Check the displayed fault code and compare it against the manufacturer guidance.',
+        'Record the full symptom and any recent service history before replacing parts.',
+      ],
+    });
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
         <Text style={styles.kicker}>HeatPump Pro</Text>
-        <Text style={styles.title}>Fault Finder</Text>
-        <Text style={styles.subtitle}>Search common fault codes by manufacturer.</Text>
+        <Text style={styles.title}>HeatPump Pro - Fault Finder</Text>
+        <Text style={styles.subtitle}>
+          Capture the manufacturer, model and fault details to start a professional diagnostic review.
+        </Text>
       </View>
 
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Manufacturer</Text>
-        <View style={styles.chipRow}>
-          {manufacturers.map((manufacturer) => {
-            const isActive = manufacturer === selectedManufacturer;
-            return (
+        <Pressable style={styles.dropdown} onPress={() => setIsDropdownOpen((value) => !value)}>
+          <Text style={[styles.dropdownText, !selectedManufacturer && styles.dropdownPlaceholder]}>
+            {selectedManufacturer || 'Select manufacturer'}
+          </Text>
+          <Text style={styles.dropdownArrow}>{isDropdownOpen ? '▴' : '▾'}</Text>
+        </Pressable>
+
+        {isDropdownOpen ? (
+          <View style={styles.dropdownMenu}>
+            {manufacturers.map((manufacturer) => (
               <Pressable
                 key={manufacturer}
-                style={[styles.chip, isActive && styles.chipActive]}
-                onPress={() => setSelectedManufacturer(manufacturer)}>
-                <Text style={[styles.chipText, isActive && styles.chipTextActive]}>{manufacturer}</Text>
+                style={styles.dropdownOption}
+                onPress={() => {
+                  setSelectedManufacturer(manufacturer);
+                  setIsDropdownOpen(false);
+                }}>
+                <Text style={styles.dropdownOptionText}>{manufacturer}</Text>
               </Pressable>
-            );
-          })}
-        </View>
+            ))}
+          </View>
+        ) : null}
 
-        <Text style={styles.sectionTitle}>Fault Code</Text>
+        <Text style={styles.sectionTitle}>Model</Text>
         <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Enter code"
+          value={model}
+          onChangeText={setModel}
+          placeholder="Enter model"
+          style={styles.input}
+          autoCapitalize="characters"
+        />
+
+        <Text style={styles.sectionTitle}>Fault code</Text>
+        <TextInput
+          value={faultCode}
+          onChangeText={setFaultCode}
+          placeholder="Enter fault code"
           autoCapitalize="characters"
           style={styles.input}
         />
 
+        <Text style={styles.sectionTitle}>Problem description</Text>
+        <TextInput
+          value={symptom}
+          onChangeText={setSymptom}
+          placeholder="Describe the issue or symptom"
+          style={[styles.input, styles.textArea]}
+          multiline
+          numberOfLines={4}
+        />
+
         <Pressable style={styles.searchButton} onPress={handleSearch}>
-          <Text style={styles.searchButtonText}>Search</Text>
+          <Text style={styles.searchButtonText}>Search Fault</Text>
         </Pressable>
 
-        <Text style={styles.helperText}>Try: E911, H62, U4, F75 or U1</Text>
+        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
       </View>
 
       {result ? (
         <View style={styles.resultCard}>
-          <Text style={styles.resultTitle}>{selectedManufacturer} {result.code}</Text>
-          <View style={styles.resultBlock}>
-            <Text style={styles.resultLabel}>Fault meaning</Text>
-            <Text style={styles.resultValue}>{result.meaning}</Text>
-          </View>
-          <View style={styles.resultBlock}>
-            <Text style={styles.resultLabel}>Likely causes</Text>
-            {result.likelyCauses.map((cause) => (
-              <Text key={cause} style={styles.bulletItem}>• {cause}</Text>
-            ))}
-          </View>
-          <View style={styles.resultBlock}>
-            <Text style={styles.resultLabel}>Diagnostic steps</Text>
-            {result.diagnosticSteps.map((step) => (
-              <Text key={step} style={styles.bulletItem}>• {step}</Text>
-            ))}
-          </View>
-          <View style={styles.resultBlock}>
-            <Text style={styles.resultLabel}>Likely parts</Text>
-            {result.likelyParts.map((part) => (
-              <Text key={part} style={styles.bulletItem}>• {part}</Text>
-            ))}
-          </View>
-          <View style={styles.resultBlock}>
-            <Text style={styles.resultLabel}>Supplier link</Text>
-            <Text style={styles.resultValue}>{result.supplierLink}</Text>
-          </View>
+          <Text style={styles.resultTitle}>{result.title}</Text>
+          <Text style={styles.resultSummary}>{result.summary}</Text>
+          <Text style={styles.resultLabel}>Recommended next steps</Text>
+          {result.checklist.map((step) => (
+            <Text key={step} style={styles.bulletItem}>• {step}</Text>
+          ))}
         </View>
       ) : (
         <View style={styles.emptyCard}>
-          <Text style={styles.emptyText}>No result yet. Enter a code and search.</Text>
+          <Text style={styles.emptyText}>Complete the fields above to begin a diagnostic review.</Text>
         </View>
       )}
     </ScrollView>
@@ -189,7 +154,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f7fb',
   },
   header: {
-    backgroundColor: '#003c8f',
+    backgroundColor: '#0f4fb3',
     borderRadius: 24,
     padding: 24,
     marginBottom: 16,
@@ -203,7 +168,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#ffffff',
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '900',
     marginTop: 8,
   },
@@ -229,33 +194,48 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '800',
     marginBottom: 8,
+    marginTop: 2,
   },
-  chipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 12,
-  },
-  chip: {
-    borderRadius: 999,
+  dropdown: {
     borderWidth: 1,
     borderColor: '#cbd5e1',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginRight: 8,
-    marginBottom: 8,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  chipActive: {
-    backgroundColor: '#003c8f',
-    borderColor: '#003c8f',
+  dropdownText: {
+    color: '#0f172a',
+    fontSize: 15,
+    flex: 1,
   },
-  chipText: {
-    color: '#334155',
-    fontSize: 13,
+  dropdownPlaceholder: {
+    color: '#64748b',
+  },
+  dropdownArrow: {
+    color: '#0f4fb3',
+    fontSize: 16,
     fontWeight: '700',
   },
-  chipTextActive: {
-    color: '#ffffff',
+  dropdownMenu: {
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    borderRadius: 12,
+    marginBottom: 12,
+    backgroundColor: '#ffffff',
+  },
+  dropdownOption: {
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+  },
+  dropdownOptionText: {
+    color: '#0f172a',
+    fontSize: 14,
   },
   input: {
     borderWidth: 1,
@@ -265,22 +245,29 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 12,
     fontSize: 15,
+    color: '#0f172a',
+  },
+  textArea: {
+    minHeight: 96,
+    textAlignVertical: 'top',
   },
   searchButton: {
-    backgroundColor: '#003c8f',
+    backgroundColor: '#0f4fb3',
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
+    marginTop: 4,
   },
   searchButtonText: {
     color: '#ffffff',
     fontSize: 15,
     fontWeight: '800',
   },
-  helperText: {
-    color: '#64748b',
-    fontSize: 12,
-    marginTop: 8,
+  errorText: {
+    color: '#b91c1c',
+    fontSize: 13,
+    marginTop: 10,
+    lineHeight: 18,
   },
   resultCard: {
     backgroundColor: '#ffffff',
@@ -294,24 +281,22 @@ const styles = StyleSheet.create({
   },
   resultTitle: {
     color: '#0f172a',
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: '900',
-    marginBottom: 12,
+    marginBottom: 8,
   },
-  resultBlock: {
-    marginBottom: 10,
-  },
-  resultLabel: {
-    color: '#003c8f',
-    fontSize: 13,
-    fontWeight: '800',
-    marginBottom: 4,
-    textTransform: 'uppercase',
-  },
-  resultValue: {
+  resultSummary: {
     color: '#334155',
     fontSize: 14,
     lineHeight: 20,
+    marginBottom: 12,
+  },
+  resultLabel: {
+    color: '#0f4fb3',
+    fontSize: 13,
+    fontWeight: '800',
+    marginBottom: 6,
+    textTransform: 'uppercase',
   },
   bulletItem: {
     color: '#334155',
@@ -333,5 +318,6 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#64748b',
     fontSize: 14,
+    textAlign: 'center',
   },
 });
