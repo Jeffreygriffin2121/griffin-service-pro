@@ -7,7 +7,7 @@ type QuickAction = {
   subtitle: string;
   icon: string;
   accent: string;
-  path?: string;
+  path?: '/coming-soon' | '/fault-finder';
 };
 
 const summaryCards = [
@@ -165,23 +165,9 @@ export default function HomeScreen() {
       <View style={styles.sectionWrap}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.grid}>
-          {quickActions.map((action) =>
-            action.path === '/fault-finder' ? (
-              <Pressable
-                key={action.title}
-                style={[styles.tile, !action.path && styles.tileDisabled]}
-                onPress={() => router.push('/fault-finder')}>
-                <View style={[styles.tileIconWrap, { backgroundColor: `${action.accent}14` }]}> 
-                  <Text style={styles.tileEmoji}>{action.icon}</Text>
-                </View>
-                <Text style={styles.tileTitle}>{action.title}</Text>
-                <Text style={styles.tileSubtitle}>{action.subtitle}</Text>
-                {!action.path ? <Text style={styles.tileBadge}>Coming soon</Text> : null}
-              </Pressable>
-            ) : (
-              <DashboardTile key={action.title} action={action} />
-            ),
-          )}
+          {quickActions.map((action) => (
+            <DashboardTile key={action.title} action={action} />
+          ))}
         </View>
       </View>
 
