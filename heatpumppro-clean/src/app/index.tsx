@@ -104,27 +104,6 @@ const timelineEntries = [
   },
 ];
 
-function DashboardTile({ action, path }: { action: QuickAction; path?: '/coming-soon' | '/fault-finder' }) {
-  const isEnabled = Boolean(path);
-
-  return (
-    <Pressable
-      style={[styles.tile, !isEnabled && styles.tileDisabled]}
-      onPress={() => {
-        if (path) {
-          router.push(path);
-        }
-      }}>
-      <View style={[styles.tileIconWrap, { backgroundColor: `${action.accent}14` }]}>
-        <Text style={styles.tileEmoji}>{action.icon}</Text>
-      </View>
-      <Text style={styles.tileTitle}>{action.title}</Text>
-      <Text style={styles.tileSubtitle}>{action.subtitle}</Text>
-      {!isEnabled ? <Text style={styles.tileBadge}>Coming soon</Text> : null}
-    </Pressable>
-  );
-}
-
 export default function HomeScreen() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer}>
@@ -157,9 +136,29 @@ export default function HomeScreen() {
       <View style={styles.sectionWrap}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.grid}>
-          {quickActions.map((action) => (
-            <DashboardTile key={action.title} action={action} path={action.path} />
-          ))}
+          {quickActions.map((action) => {
+            const isEnabled = Boolean(action.path);
+
+            return (
+              <Pressable
+                key={action.title}
+                style={[styles.tile, !isEnabled && styles.tileDisabled]}
+                onPress={() => {
+                  if (action.path === '/fault-finder' && typeof window !== 'undefined') {
+                    window.location.href = '/griffin-service-pro/fault-finder';
+                  } else if (action.path) {
+                    router.push(action.path);
+                  }
+                }}>
+                <View style={[styles.tileIconWrap, { backgroundColor: `${action.accent}14` }]}>
+                  <Text style={styles.tileEmoji}>{action.icon}</Text>
+                </View>
+                <Text style={styles.tileTitle}>{action.title}</Text>
+                <Text style={styles.tileSubtitle}>{action.subtitle}</Text>
+                {!isEnabled ? <Text style={styles.tileBadge}>Coming soon</Text> : null}
+              </Pressable>
+            );
+          })}
         </View>
       </View>
 
