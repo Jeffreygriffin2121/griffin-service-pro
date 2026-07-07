@@ -10,6 +10,17 @@ type QuickAction = {
   path?: '/coming-soon' | '/fault-finder';
 };
 
+function getWebRoutePath(path: string) {
+  if (typeof window === 'undefined') {
+    return path;
+  }
+
+  const currentPath = window.location.pathname;
+  const hasRepoBasePath = currentPath.includes('/griffin-service-pro/');
+
+  return hasRepoBasePath ? `/griffin-service-pro${path}` : path;
+}
+
 const summaryCards = [
   { label: 'Customers', value: '128', trend: '+12%' },
   { label: 'Heat Pumps', value: '84', trend: '+4%' },
@@ -145,7 +156,7 @@ export default function HomeScreen() {
                 style={[styles.tile, !isEnabled && styles.tileDisabled]}
                 onPress={() => {
                   if (action.path === '/fault-finder' && typeof window !== 'undefined') {
-                    window.location.href = '/griffin-service-pro/fault-finder';
+                    window.location.assign(getWebRoutePath(action.path));
                   } else if (action.path) {
                     router.push(action.path);
                   }
