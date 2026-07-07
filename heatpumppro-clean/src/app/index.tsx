@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { router } from 'expo-router';
+import { Link, Href } from 'expo-router';
 
 type QuickAction = {
   title: string;
@@ -150,17 +150,12 @@ export default function HomeScreen() {
           {quickActions.map((action) => {
             const isEnabled = Boolean(action.path);
 
-            return (
+            const tile = (
               <Pressable
                 key={action.title}
                 style={[styles.tile, !isEnabled && styles.tileDisabled]}
-                onPress={() => {
-                  if (action.path === '/fault-finder' && typeof window !== 'undefined') {
-                    window.location.assign(getWebRoutePath(action.path));
-                  } else if (action.path) {
-                    router.push(action.path);
-                  }
-                }}>
+                disabled={!isEnabled}
+              >
                 <View style={[styles.tileIconWrap, { backgroundColor: `${action.accent}14` }]}>
                   <Text style={styles.tileEmoji}>{action.icon}</Text>
                 </View>
@@ -168,6 +163,20 @@ export default function HomeScreen() {
                 <Text style={styles.tileSubtitle}>{action.subtitle}</Text>
                 {!isEnabled ? <Text style={styles.tileBadge}>Coming soon</Text> : null}
               </Pressable>
+            );
+
+            if (!isEnabled) return tile;
+
+            // Use Link so web renders an anchor (full-size clickable) while
+            // native uses Expo Router navigation. For GitHub Pages we compute
+            // a repo-aware href via `getWebRoutePath` so anchors point to the
+            // correct base path.
+            const href = (typeof window !== 'undefined' ? getWebRoutePath(action.path!) : action.path) as Href & string;
+
+            return (
+              <Link key={action.title} href={href} asChild>
+                {tile}
+              </Link>
             );
           })}
         </View>
