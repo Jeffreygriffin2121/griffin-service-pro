@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 
 type QuickAction = {
@@ -107,22 +107,19 @@ const timelineEntries = [
 function DashboardTile({ action }: { action: QuickAction }) {
   const isEnabled = Boolean(action.path);
 
-  const handlePress = () => {
-    if (action.path === '/fault-finder') {
-      router.push('/fault-finder');
-      return;
-    }
-
-    if (action.path) {
-      router.push(action.path);
-    }
-  };
-
   return (
     <Pressable
       key={action.title}
       style={[styles.tile, !isEnabled && styles.tileDisabled]}
-      onPress={handlePress}>
+      onPress={() => {
+        if (action.path) {
+          if (action.title === '🛠 Fault Finder' && Platform.OS === 'web') {
+            window.location.assign('/griffin-service-pro/fault-finder');
+            return;
+          }
+          router.push(action.path);
+        }
+      }}>
       <View style={[styles.tileIconWrap, { backgroundColor: `${action.accent}14` }]}>
         <Text style={styles.tileEmoji}>{action.icon}</Text>
       </View>
