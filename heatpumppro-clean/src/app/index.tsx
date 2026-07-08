@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, Platform } from 'react-native';
 import { Href, useRouter } from 'expo-router';
 
 type DashboardItem = {
@@ -11,15 +11,20 @@ type DashboardItem = {
   isAvailable?: boolean;
 };
 
-function getWebRoutePath(path: string) {
+function getWebRoutePath(path: string, useStaticHtml = false) {
   if (typeof window === 'undefined') {
     return path;
   }
 
   const currentPath = window.location.pathname;
   const hasRepoBasePath = currentPath.includes('/griffin-service-pro/');
+  const prefixedPath = hasRepoBasePath ? `/griffin-service-pro${path}` : path;
 
-  return hasRepoBasePath ? `/griffin-service-pro${path}` : path;
+  if (!useStaticHtml || prefixedPath === '/') {
+    return prefixedPath;
+  }
+
+  return prefixedPath.endsWith('.html') ? prefixedPath : `${prefixedPath}.html`;
 }
 
 const dashboardItems: DashboardItem[] = [
@@ -76,8 +81,13 @@ export default function HomeScreen() {
       return;
     }
 
-    const resolvedHref = getWebRoutePath(item.href as string);
-    router.push(resolvedHref as Href);
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const webPath = getWebRoutePath(item.href as string, true);
+      window.location.assign(webPath);
+      return;
+    }
+
+    router.push(item.href);
   };
 
   return (
@@ -97,13 +107,14 @@ export default function HomeScreen() {
 
       <View style={styles.cardList}>
         {dashboardItems.map((item) => {
-          const isAvailable = item.isAvailable;
+          const isAvailable = Boolean(item.isAvailable);
 
           return (
             <Pressable
               key={item.title}
               onPress={() => handlePress(item)}
               disabled={!isAvailable}
+              accessibilityRole="button"
               style={({ pressed }) => [
                 styles.card,
                 !isAvailable && styles.cardDisabled,
