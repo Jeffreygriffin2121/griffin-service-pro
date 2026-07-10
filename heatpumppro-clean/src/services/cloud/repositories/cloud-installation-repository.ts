@@ -210,8 +210,6 @@ const mapRowToInstallation = (row: InstallationRow): InstallationRecord => {
     eircodePostcode: eircode,
     heatPumpBrand: manufacturer,
     heatPumpModel: modelFamily,
-    manufacturer,
-    model,
     indoorUnitSerial: indoorSerial,
     outdoorUnitSerial: outdoorSerial,
     installerName: installer,

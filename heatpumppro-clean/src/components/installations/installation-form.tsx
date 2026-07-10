@@ -192,6 +192,19 @@ export function InstallationForm({
           placeholder="Enter outdoor unit serial"
         />
         <FormInput
+          label="Controller Model"
+          value={values.controllerModel}
+          onChangeText={(value) => onChange('controllerModel', value)}
+          placeholder="Controller model"
+        />
+        <FormInput
+          label="Capacity kW"
+          value={values.capacityKw}
+          onChangeText={(value) => onChange('capacityKw', value)}
+          placeholder="Installed capacity"
+          keyboardType="decimal-pad"
+        />
+        <FormInput
           label="Installer"
           value={values.installer}
           onChangeText={(value) => onChange('installer', value)}
@@ -199,11 +212,17 @@ export function InstallationForm({
         />
       </SectionCard>
 
-      <SectionCard title="Commissioning and Warranty" subtitle="Capture the commissioning date, warranty expiry, and system configuration.">
+      <SectionCard title="Commissioning and Warranty" subtitle="Capture commissioning date, installation date, and warranty expiry.">
         <FormInput
           label="Commission Date"
           value={values.commissionDate}
           onChangeText={(value) => onChange('commissionDate', value)}
+          placeholder="YYYY-MM-DD"
+        />
+        <FormInput
+          label="Installation Date"
+          value={values.installationDate}
+          onChangeText={(value) => onChange('installationDate', value)}
           placeholder="YYYY-MM-DD"
         />
         <FormInput
@@ -212,6 +231,9 @@ export function InstallationForm({
           onChangeText={(value) => onChange('warrantyExpiry', value)}
           placeholder="YYYY-MM-DD"
         />
+      </SectionCard>
+
+      <SectionCard title="System Configuration" subtitle="Capture system type, source, flow temperatures, refrigerant, and treatment.">
         <FormInput
           label="System Type"
           value={values.systemType}
@@ -219,103 +241,109 @@ export function InstallationForm({
           placeholder="Heat pump system type"
         />
         <FormInput
-          label="Buffer Tank"
-            label="Controller Model"
-            value={values.controllerModel}
-            onChangeText={(value) => onChange('controllerModel', value)}
-            placeholder="Controller model"
+          label="Heat Source"
+          value={values.heatSource}
+          onChangeText={(value) => onChange('heatSource', value)}
+          placeholder="Air source, ground source, etc."
+        />
         <FormInput
-          <FormInput
-            label="Capacity kW"
-            value={values.capacityKw}
-            onChangeText={(value) => onChange('capacityKw', value)}
-            placeholder="Installed capacity"
-            keyboardType="decimal-pad"
-          />
-          <FormInput
-            label="Installer"
-            value={values.installer}
-            onChangeText={(value) => onChange('installer', value)}
-            placeholder="Enter installer name"
-          />
-        </SectionCard>
-
-        <SectionCard title="System Configuration" subtitle="Capture system type, source, flow temperatures, refrigerant, and treatment.">
-          <FormInput label="System Type" value={values.systemType} onChangeText={(value) => onChange('systemType', value)} placeholder="Heat pump system type" />
-          <FormInput label="Heat Source" value={values.heatSource} onChangeText={(value) => onChange('heatSource', value)} placeholder="Air source, ground source, etc." />
-          <FormInput
-            label="Configuration Type"
-            value={values.configurationType}
-            onChangeText={(value) => onChange('configurationType', value)}
-            placeholder="Monobloc, split, all-in-one, etc."
-          />
-          placeholder="Cylinder model"
-            label="Electrical Phase"
-            value={values.electricalPhase}
-            onChangeText={(value) => onChange('electricalPhase', value)}
-            placeholder="Single-phase or three-phase"
-          />
-          <FormInput label="Voltage" value={values.voltage} onChangeText={(value) => onChange('voltage', value)} placeholder="Voltage" />
-          <FormInput
-            label="Refrigerant"
-            value={values.refrigerant}
-            onChangeText={(value) => onChange('refrigerant', value)}
-            placeholder="Refrigerant type"
-          />
-          <FormInput
-            label="Refrigerant Charge (kg)"
-            value={values.refrigerantChargeKg}
-            onChangeText={(value) => onChange('refrigerantChargeKg', value)}
-            placeholder="Refrigerant charge"
-          />
-          <FormInput label="Glycol Type" value={values.glycolType} onChangeText={(value) => onChange('glycolType', value)} placeholder="Glycol type" />
-          <FormInput
-            label="Glycol Percentage"
-            value={values.glycolPercentage}
-            onChangeText={(value) => onChange('glycolPercentage', value)}
-            placeholder="Glycol percentage"
-          />
-          <FormInput
-            label="Design Flow Temperature"
-            value={values.designFlowTemperature}
-            onChangeText={(value) => onChange('designFlowTemperature', value)}
-            placeholder="Design flow temperature"
-          />
-          <FormInput
-            label="Maximum Flow Temperature"
-            value={values.maximumFlowTemperature}
-            onChangeText={(value) => onChange('maximumFlowTemperature', value)}
-            placeholder="Maximum flow temperature"
-          />
-        </SectionCard>
-
-        <SectionCard title="Commissioning and Warranty" subtitle="Capture commissioning date, installation date, and warranty expiry.">
-          <FormInput label="Commission Date" value={values.commissionDate} onChangeText={(value) => onChange('commissionDate', value)} placeholder="YYYY-MM-DD" />
-          <FormInput label="Installation Date" value={values.installationDate} onChangeText={(value) => onChange('installationDate', value)} placeholder="YYYY-MM-DD" />
+          label="Configuration Type"
+          value={values.configurationType}
+          onChangeText={(value) => onChange('configurationType', value)}
+          placeholder="Monobloc, split, all-in-one, etc."
+        />
+        <FormInput
+          label="Electrical Phase"
+          value={values.electricalPhase}
+          onChangeText={(value) => onChange('electricalPhase', value)}
+          placeholder="Single-phase or three-phase"
+        />
+        <FormInput label="Voltage" value={values.voltage} onChangeText={(value) => onChange('voltage', value)} placeholder="Voltage" />
+        <FormInput
+          label="Refrigerant"
           value={values.refrigerant}
           onChangeText={(value) => onChange('refrigerant', value)}
           placeholder="Refrigerant type"
         />
+        <FormInput
+          label="Refrigerant Charge (kg)"
+          value={values.refrigerantChargeKg}
+          onChangeText={(value) => onChange('refrigerantChargeKg', value)}
+          placeholder="Refrigerant charge"
+        />
+        <FormInput label="Glycol Type" value={values.glycolType} onChangeText={(value) => onChange('glycolType', value)} placeholder="Glycol type" />
+        <FormInput
+          label="Glycol Percentage"
+          value={values.glycolPercentage}
+          onChangeText={(value) => onChange('glycolPercentage', value)}
+          placeholder="Glycol percentage"
+        />
+        <FormInput
+          label="Design Flow Temperature"
+          value={values.designFlowTemperature}
+          onChangeText={(value) => onChange('designFlowTemperature', value)}
+          placeholder="Design flow temperature"
+        />
+        <FormInput
+          label="Maximum Flow Temperature"
+          value={values.maximumFlowTemperature}
+          onChangeText={(value) => onChange('maximumFlowTemperature', value)}
+          placeholder="Maximum flow temperature"
+        />
       </SectionCard>
 
+      <SectionCard title="Hydronic Components" subtitle="Capture buffer tank and hot water cylinder details.">
+        <FormInput label="Buffer Tank" value={values.bufferTank} onChangeText={(value) => onChange('bufferTank', value)} placeholder="Buffer tank details" />
+        <FormInput
+          label="Buffer Tank Size (L)"
+          value={values.bufferTankSizeLitres}
+          onChangeText={(value) => onChange('bufferTankSizeLitres', value)}
+          placeholder="Buffer tank size"
+        />
+        <FormInput
+          label="Cylinder Manufacturer"
+          value={values.cylinderManufacturer}
+          onChangeText={(value) => onChange('cylinderManufacturer', value)}
+          placeholder="Cylinder manufacturer"
+        />
+        <FormInput
+          label="Cylinder Model"
+          value={values.cylinderModel}
+          onChangeText={(value) => onChange('cylinderModel', value)}
+          placeholder="Cylinder model"
+        />
+        <FormInput
+          label="Cylinder Size (L)"
+          value={values.cylinderSizeLitres}
+          onChangeText={(value) => onChange('cylinderSizeLitres', value)}
+          placeholder="Cylinder size"
+        />
+      </SectionCard>
+
+      <SectionCard title="Additional Details" subtitle="Record software and commissioning notes.">
+        <FormInput
+          label="Year Introduced"
+          value={values.yearIntroduced}
+          onChangeText={(value) => onChange('yearIntroduced', value)}
+          placeholder="Year introduced"
+        />
+        <FormInput
+          label="Firmware Version"
+          value={values.firmwareVersion}
+          onChangeText={(value) => onChange('firmwareVersion', value)}
+          placeholder="Firmware version"
+        />
+        <FormInput
+          label="Notes"
+          value={values.notes}
+          onChangeText={(value) => onChange('notes', value)}
+          placeholder="Additional notes"
           multiline
         />
       </SectionCard>
 
       {errorText ? <Text style={styles.errorText}>{errorText}</Text> : null}
 
-          <FormInput
-            label="Buffer Tank Size (L)"
-            value={values.bufferTankSizeLitres}
-            onChangeText={(value) => onChange('bufferTankSizeLitres', value)}
-            placeholder="Buffer tank size"
-          />
-          <FormInput
-            label="Cylinder Manufacturer"
-            value={values.cylinderManufacturer}
-            onChangeText={(value) => onChange('cylinderManufacturer', value)}
-            placeholder="Cylinder manufacturer"
-          />
       <PrimaryButton title={saveLabel} onPress={onSave} disabled={isSaving} style={styles.button} />
       <PrimaryButton title={cancelLabel} onPress={onCancel} disabled={isSaving} style={[styles.button, styles.cancelButton]} />
     </View>
@@ -323,22 +351,8 @@ export function InstallationForm({
 }
 
 const styles = StyleSheet.create({
-            label="Cylinder Size (L)"
-            value={values.cylinderSizeLitres}
-            onChangeText={(value) => onChange('cylinderSizeLitres', value)}
-            placeholder="Cylinder size"
-          />
-          <FormInput
-            label="Year Introduced"
-            value={values.yearIntroduced}
-            onChangeText={(value) => onChange('yearIntroduced', value)}
-            placeholder="Year introduced"
-          />
-          <FormInput
-            label="Firmware Version"
-            value={values.firmwareVersion}
-            onChangeText={(value) => onChange('firmwareVersion', value)}
-            placeholder="Firmware version"
+  errorText: {
+    color: '#b91c1c',
     marginBottom: 12,
   },
   button: {
