@@ -153,6 +153,32 @@ export type CatalogueConfigurationType = 'monobloc' | 'split' | 'all-in-one' | '
 
 export type CatalogueElectricalPhase = 'single-phase' | 'three-phase' | 'unknown';
 
+export type CatalogueAttachmentKind =
+  | 'service-manual'
+  | 'installation-manual'
+  | 'wiring-diagram'
+  | 'hydraulic-diagram'
+  | 'fault-codes'
+  | 'spare-parts'
+  | 'photo'
+  | 'technical-bulletin';
+
+export type CatalogueAttachmentOrigin = 'seed' | 'manual-entry' | 'manufacturer-feed' | 'supabase';
+
+export interface CatalogueAttachmentReference {
+  id: string;
+  kind: CatalogueAttachmentKind;
+  title: string;
+  href?: string;
+  storagePath?: string;
+  mimeType?: string;
+  notes?: string;
+  version?: string;
+  publishedAt?: string;
+  syncedAt?: string;
+  origin: CatalogueAttachmentOrigin;
+}
+
 export interface ManufacturerCatalogueEntry {
   canonicalName: string;
   displayName: string;
@@ -188,6 +214,7 @@ export interface HeatPumpModelCatalogueEntry {
   faultCodeReference: string | null;
   commissioningChecklistReference: string | null;
   firmwareNotes: string | null;
+  attachments: CatalogueAttachmentReference[];
   discontinued: boolean;
   availabilityStatus: CatalogueAvailabilityStatus;
   aliases: string[];

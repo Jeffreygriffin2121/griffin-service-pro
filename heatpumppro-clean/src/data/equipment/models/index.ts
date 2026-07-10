@@ -33,6 +33,7 @@ const buildModel = (
   faultCodeReference: null,
   commissioningChecklistReference: null,
   firmwareNotes: null,
+  attachments: [],
   discontinued: false,
   availabilityStatus,
   aliases,
@@ -161,6 +162,15 @@ const familiesByManufacturer: ModelFamilyCatalogueEntry[] = [
   family('Bosch', 'Other Bosch model'),
   family('Bosch', 'Other model'),
   family('Bosch', 'Unknown model'),
+
+  family('Worcester Bosch', 'Compress 2000'),
+  family('Worcester Bosch', 'Compress 3000'),
+  family('Worcester Bosch', 'Compress 5000'),
+  family('Worcester Bosch', 'Compress 5800i'),
+  family('Worcester Bosch', 'Compress 7000'),
+  family('Worcester Bosch', 'Other Worcester Bosch model'),
+  family('Worcester Bosch', 'Other model'),
+  family('Worcester Bosch', 'Unknown model'),
 
   family('Aermec', 'Other Aermec model'),
   family('Aermec', 'Other model'),

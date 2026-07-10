@@ -10,6 +10,7 @@ export const equipmentManufacturers: ManufacturerCatalogueEntry[] = [
   { canonicalName: 'Firebird', displayName: 'Firebird', aliases: ['Firebird Enviroair', 'Firebird Enviro Air'], availabilityStatus: 'available' },
   { canonicalName: 'Grant', displayName: 'Grant', aliases: [], availabilityStatus: 'available' },
   { canonicalName: 'NIBE', displayName: 'NIBE', aliases: [], availabilityStatus: 'available' },
+  { canonicalName: 'Worcester Bosch', displayName: 'Worcester Bosch', aliases: ['Worcester', 'WB'], availabilityStatus: 'available' },
   { canonicalName: 'Vaillant', displayName: 'Vaillant', aliases: [], availabilityStatus: 'available' },
   { canonicalName: 'Viessmann', displayName: 'Viessmann', aliases: [], availabilityStatus: 'available' },
   { canonicalName: 'Bosch', displayName: 'Bosch', aliases: ['Worcester Bosch'], availabilityStatus: 'available' },
@@ -62,11 +63,17 @@ export const manufacturerLabels = equipmentManufacturers.map((manufacturer) => (
 export const manufacturerLookup = equipmentManufacturers.reduce<Record<string, ManufacturerCatalogueEntry>>((acc, manufacturer) => {
   acc[manufacturer.canonicalName.toLowerCase()] = manufacturer;
   acc[manufacturer.displayName.toLowerCase()] = manufacturer;
-  manufacturer.aliases.forEach((alias) => {
-    acc[alias.toLowerCase()] = manufacturer;
-  });
   return acc;
 }, {});
+
+equipmentManufacturers.forEach((manufacturer) => {
+  manufacturer.aliases.forEach((alias) => {
+    const key = alias.toLowerCase();
+    if (!manufacturerLookup[key]) {
+      manufacturerLookup[key] = manufacturer;
+    }
+  });
+});
 
 export const normalizeManufacturerName = (input: string): string => {
   const trimmed = input.trim();
