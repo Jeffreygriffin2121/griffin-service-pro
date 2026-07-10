@@ -236,6 +236,93 @@ const familiesByManufacturer: ModelFamilyCatalogueEntry[] = [
   family('Ideal', 'Other Ideal model'),
   family('Ideal', 'Other model'),
   family('Ideal', 'Unknown model'),
+
+  family('Mitsubishi Heavy Industries', 'SRK / SRC'),
+  family('Mitsubishi Heavy Industries', 'FDK / FDC'),
+  family('Mitsubishi Heavy Industries', 'Other Mitsubishi Heavy Industries model'),
+  family('Mitsubishi Heavy Industries', 'Other model'),
+  family('Mitsubishi Heavy Industries', 'Unknown model'),
+
+  family('Dimplex', 'LA / LI'),
+  family('Dimplex', 'Other Dimplex model'),
+  family('Dimplex', 'Other model'),
+  family('Dimplex', 'Unknown model'),
+
+  family('De Dietrich', 'Kalista'),
+  family('De Dietrich', 'Other De Dietrich model'),
+  family('De Dietrich', 'Other model'),
+  family('De Dietrich', 'Unknown model'),
+
+  family('Alpha Innotec', 'LW / LA'),
+  family('Alpha Innotec', 'Other Alpha Innotec model'),
+  family('Alpha Innotec', 'Other model'),
+  family('Alpha Innotec', 'Unknown model'),
+
+  family('Kensa', 'Guardian'),
+  family('Kensa', 'Compact'),
+  family('Kensa', 'Other Kensa model'),
+  family('Kensa', 'Other model'),
+  family('Kensa', 'Unknown model'),
+
+  family('WaterFurnace', 'Envision'),
+  family('WaterFurnace', 'Aurora'),
+  family('WaterFurnace', 'Other WaterFurnace model'),
+  family('WaterFurnace', 'Other model'),
+  family('WaterFurnace', 'Unknown model'),
+
+  family('Ecoforest', 'Aerothermal'),
+  family('Ecoforest', 'Geothermal'),
+  family('Ecoforest', 'Other Ecoforest model'),
+  family('Ecoforest', 'Other model'),
+  family('Ecoforest', 'Unknown model'),
+
+  family('Ochsner', 'Air / Ground'),
+  family('Ochsner', 'Combi Hybrid'),
+  family('Ochsner', 'Other Ochsner model'),
+  family('Ochsner', 'Other model'),
+  family('Ochsner', 'Unknown model'),
+
+  family('Calorex', 'DH / DS series'),
+  family('Calorex', 'Other Calorex model'),
+  family('Calorex', 'Other model'),
+  family('Calorex', 'Unknown model'),
+
+  family('Dantherm', 'CHA Compact'),
+  family('Dantherm', 'Other Dantherm model'),
+  family('Dantherm', 'Other model'),
+  family('Dantherm', 'Unknown model'),
+
+  family('Gree', 'GWHC Air Source'),
+  family('Gree', 'GWCS Ground Source'),
+  family('Gree', 'Other Gree model'),
+  family('Gree', 'Other model'),
+  family('Gree', 'Unknown model'),
+
+  family('Haier', 'Flexis'),
+  family('Haier', 'Tibro'),
+  family('Haier', 'Other Haier model'),
+  family('Haier', 'Other model'),
+  family('Haier', 'Unknown model'),
+
+  family('Ariston', 'Nimbus Flex'),
+  family('Ariston', 'Other Ariston model'),
+  family('Ariston', 'Other model'),
+  family('Ariston', 'Unknown model'),
+
+  family('Immergas', 'Magis Pro'),
+  family('Immergas', 'Other Immergas model'),
+  family('Immergas', 'Other model'),
+  family('Immergas', 'Unknown model'),
+
+  family('Riello', 'Sentinella'),
+  family('Riello', 'Other Riello model'),
+  family('Riello', 'Other model'),
+  family('Riello', 'Unknown model'),
+
+  family('Baxi', 'Heat'),
+  family('Baxi', 'Other Baxi model'),
+  family('Baxi', 'Other model'),
+  family('Baxi', 'Unknown model'),
 ];
 
 export const equipmentModelFamilies = familiesByManufacturer;
