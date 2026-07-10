@@ -1,0 +1,1 @@
+export { EquipmentRecordCard as EquipmentCard } from './equipment/equipment-record-card';

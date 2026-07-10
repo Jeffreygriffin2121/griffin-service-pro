@@ -1,0 +1,1 @@
+export { EquipmentHubScreen as default } from '../features/equipment/equipment-hub-screen';
