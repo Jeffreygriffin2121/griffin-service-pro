@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   equipmentManufacturers,
@@ -19,16 +19,6 @@ type Props = {
   onChange: (nextValue: EquipmentSelectorSelection) => void;
 };
 
-const emptySelection: EquipmentSelectorSelection = {
-  manufacturerEntered: '',
-  manufacturer: '',
-  modelFamily: '',
-  model: '',
-  exactModelNumber: '',
-  capacityKw: '',
-  manualEntry: false,
-};
-
 const matchesQuery = (value: string, query: string) => value.toLowerCase().includes(query.toLowerCase());
 
 export function EquipmentSelector({ value, errorText, onChange }: Props) {
@@ -37,9 +27,19 @@ export function EquipmentSelector({ value, errorText, onChange }: Props) {
   const [openFamily, setOpenFamily] = useState<boolean>(false);
   const [openModel, setOpenModel] = useState<boolean>(false);
 
-  const selectedManufacturer = useMemo(() => findManufacturerByInput(value.manufacturer || value.manufacturerEntered), [value.manufacturer, value.manufacturerEntered]);
+  useEffect(() => {
+    setIsManualEntry(value.manualEntry);
+  }, [value.manualEntry]);
+
+  const selectedManufacturer = useMemo(
+    () => findManufacturerByInput(value.manufacturer || value.manufacturerEntered),
+    [value.manufacturer, value.manufacturerEntered],
+  );
   const families = useMemo(() => (value.manufacturer ? getModelFamiliesForManufacturer(value.manufacturer) : []), [value.manufacturer]);
-  const exactModels = useMemo(() => (value.manufacturer && value.modelFamily ? getModelsForFamily(value.manufacturer, value.modelFamily) : []), [value.manufacturer, value.modelFamily]);
+  const exactModels = useMemo(
+    () => (value.manufacturer && value.modelFamily ? getModelsForFamily(value.manufacturer, value.modelFamily) : []),
+    [value.manufacturer, value.modelFamily],
+  );
 
   const filteredManufacturers = useMemo(() => {
     const query = manufacturerQuery.trim();
@@ -69,17 +69,14 @@ export function EquipmentSelector({ value, errorText, onChange }: Props) {
       });
       setIsManualEntry(false);
       setOpenFamily(false);
+      setOpenModel(false);
     };
 
     if (hasModelData && currentManufacturer && currentManufacturer !== resolved) {
-      Alert.alert(
-        'Change manufacturer?',
-        'Changing the manufacturer will clear the current model selection. Continue?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Change', style: 'destructive', onPress: applyManufacturer },
-        ],
-      );
+      Alert.alert('Change manufacturer?', 'Changing the manufacturer will clear the current model selection. Continue?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Change', style: 'destructive', onPress: applyManufacturer },
+      ]);
       return;
     }
 
@@ -96,6 +93,9 @@ export function EquipmentSelector({ value, errorText, onChange }: Props) {
     });
   };
 
+  const manufacturerLabel = (manufacturerName: string, displayName: string) =>
+    manufacturerName === 'Other / Unknown' ? 'Other' : displayName;
+
   return (
     <SectionCard title="Equipment Catalogue" subtitle="Search a manufacturer, pick a model family, or switch to manual entry for legacy records.">
       <FormInput
@@ -108,12 +108,13 @@ export function EquipmentSelector({ value, errorText, onChange }: Props) {
       <View style={styles.manufacturerList}>
         {filteredManufacturers.map((manufacturer) => {
           const isSelected = normalizeManufacturerName(value.manufacturer || value.manufacturerEntered) === manufacturer.canonicalName;
+
           return (
             <Pressable
               key={manufacturer.canonicalName}
               style={[styles.manufacturerItem, isSelected && styles.manufacturerItemSelected]}
               onPress={() => selectManufacturer(manufacturer.canonicalName)}>
-              <Text style={styles.manufacturerName}>{manufacturer.displayName}</Text>
+              <Text style={styles.manufacturerName}>{manufacturerLabel(manufacturer.canonicalName, manufacturer.displayName)}</Text>
               {manufacturer.aliases.length ? <Text style={styles.manufacturerAlias}>Aliases: {manufacturer.aliases.join(', ')}</Text> : null}
             </Pressable>
           );
@@ -136,17 +137,17 @@ export function EquipmentSelector({ value, errorText, onChange }: Props) {
         options={[
           ...(value.modelFamily ? [value.modelFamily] : []),
           ...families.map((family) => family.familyName),
-          'Other / Not listed',
+          'Other',
         ]}
         helperText={value.manufacturer ? undefined : 'Model families are filtered by manufacturer.'}
         isOpen={openFamily}
         onToggleOpen={() => setOpenFamily(!openFamily)}
         onSelect={(familyName) => {
-          if (familyName === 'Other / Not listed') {
+          if (familyName === 'Other') {
             onChange({
               ...value,
               manualEntry: true,
-              modelFamily: 'Other / Not listed',
+              modelFamily: 'Other',
               model: value.model || 'Other model',
             });
             setIsManualEntry(true);
@@ -167,13 +168,13 @@ export function EquipmentSelector({ value, errorText, onChange }: Props) {
         options={[
           ...(value.model ? [value.model] : []),
           ...exactModels.map((model) => model.exactModel),
-          'Other / Not listed',
+          'Other',
         ]}
         helperText={value.modelFamily ? undefined : 'Exact models are filtered by the selected family.'}
         isOpen={openModel}
         onToggleOpen={() => setOpenModel(!openModel)}
         onSelect={(exactModel) => {
-          if (exactModel === 'Other / Not listed') {
+          if (exactModel === 'Other') {
             onChange({
               ...value,
               manualEntry: true,
@@ -211,12 +212,8 @@ export function EquipmentSelector({ value, errorText, onChange }: Props) {
         keyboardType="decimal-pad"
       />
 
-      <Text style={styles.helpText}>
-        Manufacturer selected: {selectedManufacturer?.displayName || value.manufacturer || 'Not selected'}
-      </Text>
-      <Text style={styles.helpText}>
-        Saved manufacturer: {value.manufacturer || 'Not selected'}
-      </Text>
+      <Text style={styles.helpText}>Manufacturer selected: {selectedManufacturer?.displayName || value.manufacturer || 'Not selected'}</Text>
+      <Text style={styles.helpText}>Saved manufacturer: {value.manufacturer || 'Not selected'}</Text>
       {errorText ? <Text style={styles.errorText}>{errorText}</Text> : null}
     </SectionCard>
   );
