@@ -1,6 +1,75 @@
 import { EquipmentAsset, EquipmentRecord } from '../../../types/equipment';
 import { CompleteServiceVisitInput } from '../../equipment/equipment-hub-service';
 
+export interface InstallationFormValues {
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  siteAddress: string;
+  addressLine1: string;
+  addressLine2: string;
+  townCity: string;
+  county: string;
+  eircode: string;
+  manufacturerEntered: string;
+  manufacturer: string;
+  modelFamily: string;
+  model: string;
+  exactModelNumber: string;
+  serialNumber: string;
+  outdoorModel: string;
+  indoorModel: string;
+  outdoorSerial: string;
+  indoorSerial: string;
+  controllerModel: string;
+  capacityKw: string;
+  electricalPhase: string;
+  voltage: string;
+  refrigerant: string;
+  refrigerantChargeKg: string;
+  glycolType: string;
+  glycolPercentage: string;
+  designFlowTemperature: string;
+  maximumFlowTemperature: string;
+  bufferTank: string;
+  bufferTankSizeLitres: string;
+  cylinderManufacturer: string;
+  cylinderModel: string;
+  cylinderSizeLitres: string;
+  installer: string;
+  commissionDate: string;
+  installationDate: string;
+  warrantyExpiry: string;
+  systemType: string;
+  heatSource: string;
+  configurationType: string;
+  yearIntroduced: string;
+  firmwareVersion: string;
+  notes: string;
+}
+
+export interface LegacyInstallationValues {
+  phone: string;
+  email: string;
+  address: string;
+  eircodePostcode: string;
+  heatPumpBrand: string;
+  heatPumpModel: string;
+  manufacturer: string;
+  model: string;
+  indoorUnitSerial: string;
+  outdoorUnitSerial: string;
+  installerName: string;
+  installDate: string;
+  warrantyStart: string;
+  unitType: string;
+  status: string;
+  engineerNotes: string;
+  createdBy: string;
+  updatedBy: string;
+  serialNumber: string;
+}
+
 export interface ServiceVisitRecord {
   id: string;
   date: string;
@@ -12,25 +81,21 @@ export interface ServiceVisitRecord {
   photos: string[];
 }
 
-export interface InstallationRecord {
+export interface InstallationRecord extends InstallationFormValues, LegacyInstallationValues {
   id: string;
   companyId: string;
-  customerName: string;
-  phone: string;
-  email: string;
-  address: string;
-  eircodePostcode: string;
-  unitType: string;
-  manufacturer: string;
-  model: string;
-  serialNumber: string;
-  installDate: string;
-  installerName: string;
-  status: string;
-  notes: string;
-  createdBy: string;
-  updatedBy: string;
+  customerId?: string;
+  manufacturerCanonical: string;
+  createdAt: string;
+  updatedAt: string;
 }
+
+export type InstallationUpsertInput = Partial<InstallationFormValues> & Partial<LegacyInstallationValues> & {
+  id?: string;
+  companyId?: string;
+  customerId?: string;
+  manufacturerCanonical?: string;
+};
 
 export interface EquipmentPassportResult {
   equipment: EquipmentRecord;
@@ -51,11 +116,12 @@ export interface AiDiagnosticRecord {
 export interface InstallationRepository {
   listInstallations(): Promise<InstallationRecord[]>;
   getInstallationById(installationId: string): Promise<InstallationRecord | undefined>;
-  createInstallation(input: Omit<InstallationRecord, 'id'> & { id?: string }): Promise<InstallationRecord>;
+  createInstallation(input: InstallationUpsertInput): Promise<InstallationRecord>;
   updateInstallation(
     installationId: string,
-    updates: Partial<Omit<InstallationRecord, 'id' | 'companyId'>>,
+    updates: InstallationUpsertInput,
   ): Promise<InstallationRecord | undefined>;
+  deleteInstallation(installationId: string): Promise<boolean>;
 
   startServiceVisit(installationId: string, engineerName?: string): Promise<ServiceVisitRecord | undefined>;
   saveServiceVisitDraft(

@@ -147,6 +147,69 @@ export interface FutureCapabilityConfig {
   pushNotifications: boolean;
 }
 
+export type CatalogueAvailabilityStatus = 'available' | 'limited' | 'legacy' | 'unknown';
+
+export type CatalogueConfigurationType = 'monobloc' | 'split' | 'all-in-one' | 'ground-source' | 'exhaust-air' | 'other' | 'unknown';
+
+export type CatalogueElectricalPhase = 'single-phase' | 'three-phase' | 'unknown';
+
+export interface ManufacturerCatalogueEntry {
+  canonicalName: string;
+  displayName: string;
+  aliases: string[];
+  availabilityStatus: CatalogueAvailabilityStatus;
+}
+
+export interface ModelFamilyCatalogueEntry {
+  manufacturer: string;
+  familyName: string;
+  aliases: string[];
+  availabilityStatus: CatalogueAvailabilityStatus;
+  exactModels: HeatPumpModelCatalogueEntry[];
+}
+
+export interface HeatPumpModelCatalogueEntry {
+  manufacturer: string;
+  modelFamily: string;
+  exactModel: string;
+  capacityKw: number | null;
+  refrigerant: string | null;
+  configurationType: CatalogueConfigurationType;
+  electricalPhase: CatalogueElectricalPhase;
+  voltage: string | null;
+  maximumFlowTemperature: string | null;
+  scop: string | null;
+  soundData: string | null;
+  yearIntroduced: number | null;
+  serviceManualReference: string | null;
+  installerManualReference: string | null;
+  wiringDiagramReference: string | null;
+  sparePartsReference: string | null;
+  faultCodeReference: string | null;
+  commissioningChecklistReference: string | null;
+  firmwareNotes: string | null;
+  discontinued: boolean;
+  availabilityStatus: CatalogueAvailabilityStatus;
+  aliases: string[];
+  technicalNotes: string | null;
+}
+
+export interface EquipmentSelectorSelection {
+  manufacturerEntered: string;
+  manufacturer: string;
+  modelFamily: string;
+  model: string;
+  exactModelNumber: string;
+  capacityKw: string;
+  manualEntry: boolean;
+}
+
+export interface InstallationCatalogueSnapshot {
+  manufacturer?: ManufacturerCatalogueEntry;
+  modelFamily?: ModelFamilyCatalogueEntry;
+  model?: HeatPumpModelCatalogueEntry;
+}
+
 export interface ServiceVisitSummary {
   currentVisitId: string;
   lastServiceDate: string;

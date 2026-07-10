@@ -17,15 +17,25 @@ import {
   setPhotoIncludeInReport,
 } from '../../equipment/equipment-hub-service';
 import { getCurrentSession } from '../auth/auth-session-service';
-import { AiDiagnosticRecord, InstallationRecord, InstallationRepository, ServiceVisitRecord } from './types';
+import {
+  AiDiagnosticRecord,
+  InstallationRecord,
+  InstallationRepository,
+  InstallationUpsertInput,
+  ServiceVisitRecord,
+} from './types';
+import { normalizeManufacturerName } from '../../../data/equipment';
 
 const demoCompanyId = 'company-demo-1';
 const demoEngineerId = 'engineer-demo-1';
 
 const nowIso = () => new Date().toISOString();
-
-const installationOwnership = new Map<string, string>();
+const createId = () => `installation-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const installationStore = new Map<string, InstallationRecord>();
+let installationsSeeded = false;
 const aiDiagnosticsByInstallation = new Map<string, AiDiagnosticRecord[]>();
+
+const pick = (...values: Array<string | null | undefined>) => values.find((value) => typeof value === 'string' && value.trim())?.trim() || '';
 
 const getSessionScope = async () => {
   const session = await getCurrentSession();
@@ -38,14 +48,8 @@ const getSessionScope = async () => {
 };
 
 const resolveInstallationCompanyId = (installationId: string): string => {
-  const existing = installationOwnership.get(installationId);
-  if (existing) {
-    return existing;
-  }
-
-  // Existing seed/demo installations are owned by the demo company.
-  installationOwnership.set(installationId, demoCompanyId);
-  return demoCompanyId;
+  const existing = installationStore.get(installationId);
+  return existing?.companyId || demoCompanyId;
 };
 
 const assertCompanyAccess = async (installationId?: string) => {
@@ -67,121 +71,274 @@ const toInstallationRecord = (equipmentId: string, companyId: string, engineerId
     return undefined;
   }
 
+  const manufacturerEntered = equipment.equipment.manufacturer;
+  const manufacturer = normalizeManufacturerName(manufacturerEntered);
+  const modelFamily = equipment.equipment.model;
+
   return {
     id: equipment.id,
     companyId,
+    customerId: undefined,
+    manufacturerCanonical: manufacturer,
     customerName: equipment.customer.customerName,
+    customerPhone: equipment.customer.phone,
+    customerEmail: equipment.customer.email,
+    siteAddress: equipment.customer.propertyAddress,
+    addressLine1: equipment.customer.propertyAddress,
+    addressLine2: '',
+    townCity: '',
+    county: '',
+    eircode: equipment.customer.eircodePostcode,
+    manufacturerEntered,
+    manufacturer,
+    modelFamily,
+    model: equipment.equipment.model,
+    exactModelNumber: equipment.equipment.serialNumber,
+    serialNumber: equipment.equipment.serialNumber,
+    outdoorModel: equipment.equipment.model,
+    indoorModel: equipment.equipment.model,
+    controllerModel: '',
+    capacityKw: '',
+    indoorSerial: equipment.equipment.indoorUnitSerial,
+    outdoorSerial: equipment.equipment.outdoorUnitSerial,
+    electricalPhase: '',
+    voltage: '',
+    refrigerantChargeKg: equipment.equipment.refrigerantCharge,
+    glycolType: '',
+    glycolPercentage: '',
+    designFlowTemperature: '',
+    maximumFlowTemperature: '',
+    bufferTankSizeLitres: '',
+    cylinderManufacturer: '',
+    cylinderSizeLitres: '',
+    installer: equipment.equipment.installer,
+    commissionDate: equipment.equipment.installationDate,
+    installationDate: equipment.equipment.installationDate,
+    warrantyExpiry: equipment.equipment.warrantyExpiry,
+    systemType: 'Heat Pump',
+    heatSource: 'Air source',
+    configurationType: 'unknown',
+    yearIntroduced: '',
+    firmwareVersion: '',
+    bufferTank: '',
+    cylinderModel: '',
+    refrigerant: equipment.equipment.refrigerantType,
+    notes: equipment.engineerNotes[0] || '',
     phone: equipment.customer.phone,
     email: equipment.customer.email,
     address: equipment.customer.propertyAddress,
     eircodePostcode: equipment.customer.eircodePostcode,
-    unitType: 'Heat Pump',
+    heatPumpBrand: manufacturer,
+    heatPumpModel: modelFamily,
     manufacturer: equipment.equipment.manufacturer,
     model: equipment.equipment.model,
-    serialNumber: equipment.equipment.serialNumber,
-    installDate: equipment.equipment.installationDate,
+    indoorUnitSerial: equipment.equipment.indoorUnitSerial,
+    outdoorUnitSerial: equipment.equipment.outdoorUnitSerial,
     installerName: equipment.equipment.installer,
+    installDate: equipment.equipment.installationDate,
+    warrantyStart: equipment.equipment.installationDate,
+    unitType: 'Heat Pump',
     status: equipment.status,
-    notes: equipment.engineerNotes[0] || '',
     createdBy: engineerId,
     updatedBy: engineerId,
+    engineerNotes: equipment.engineerNotes[0] || '',
+    createdAt: `${equipment.equipment.installationDate}T12:00:00.000Z`,
+    updatedAt: `${equipment.equipment.installationDate}T12:00:00.000Z`,
   };
 };
 
-const applyInstallationUpdates = (
-  installationId: string,
-  updates: Partial<Omit<InstallationRecord, 'id' | 'companyId'>>,
-) => {
-  updateEquipmentRecord(installationId, (current) => ({
-    ...current,
-    customer: {
-      ...current.customer,
-      customerName: updates.customerName ?? current.customer.customerName,
-      phone: updates.phone ?? current.customer.phone,
-      email: updates.email ?? current.customer.email,
-      propertyAddress: updates.address ?? current.customer.propertyAddress,
-      eircodePostcode: updates.eircodePostcode ?? current.customer.eircodePostcode,
-    },
-    equipment: {
-      ...current.equipment,
-      manufacturer: updates.manufacturer ?? current.equipment.manufacturer,
-      model: updates.model ?? current.equipment.model,
-      serialNumber: updates.serialNumber ?? current.equipment.serialNumber,
-      installationDate: updates.installDate ?? current.equipment.installationDate,
-      installer: updates.installerName ?? current.equipment.installer,
-    },
-    status: (updates.status as typeof current.status | undefined) ?? current.status,
-    engineerNotes: updates.notes ? [updates.notes, ...current.engineerNotes] : current.engineerNotes,
-  }));
+const normalizeInstallationInput = (
+  input: InstallationUpsertInput,
+  previous?: InstallationRecord,
+): InstallationRecord => {
+  const manufacturerEntered = pick(input.manufacturerEntered, input.heatPumpBrand, input.manufacturer, previous?.manufacturerEntered, previous?.heatPumpBrand, previous?.manufacturer);
+  const manufacturer = normalizeManufacturerName(pick(input.manufacturer, input.heatPumpBrand, previous?.manufacturer, previous?.heatPumpBrand, manufacturerEntered));
+  const modelFamily = pick(input.modelFamily, input.heatPumpModel, previous?.modelFamily, previous?.heatPumpModel, input.model, previous?.model);
+  const model = pick(input.model, input.heatPumpModel, previous?.model, previous?.heatPumpModel, modelFamily);
+  const exactModelNumber = pick(input.exactModelNumber, previous?.exactModelNumber, input.serialNumber, previous?.serialNumber);
+  const serialNumber = pick(input.serialNumber, previous?.serialNumber, input.exactModelNumber, previous?.exactModelNumber);
+  const customerName = pick(input.customerName, previous?.customerName);
+  const customerPhone = pick(input.customerPhone, input.phone, previous?.customerPhone, previous?.phone);
+  const customerEmail = pick(input.customerEmail, input.email, previous?.customerEmail, previous?.email);
+  const siteAddress = pick(input.siteAddress, input.address, previous?.siteAddress, previous?.address);
+  const addressLine1 = pick(input.addressLine1, previous?.addressLine1, siteAddress);
+  const addressLine2 = pick(input.addressLine2, previous?.addressLine2);
+  const townCity = pick(input.townCity, previous?.townCity);
+  const county = pick(input.county, previous?.county);
+  const eircode = pick(input.eircode, input.eircodePostcode, previous?.eircode, previous?.eircodePostcode);
+  const outdoorModel = pick(input.outdoorModel, previous?.outdoorModel, model);
+  const indoorModel = pick(input.indoorModel, previous?.indoorModel, model);
+  const outdoorSerial = pick(input.outdoorSerial, input.outdoorUnitSerial, previous?.outdoorSerial, previous?.outdoorUnitSerial);
+  const indoorSerial = pick(input.indoorSerial, input.indoorUnitSerial, previous?.indoorSerial, previous?.indoorUnitSerial);
+  const controllerModel = pick(input.controllerModel, previous?.controllerModel);
+  const capacityKw = pick(input.capacityKw, previous?.capacityKw);
+  const electricalPhase = pick(input.electricalPhase, previous?.electricalPhase);
+  const voltage = pick(input.voltage, previous?.voltage);
+  const refrigerant = pick(input.refrigerant, previous?.refrigerant);
+  const refrigerantChargeKg = pick(input.refrigerantChargeKg, previous?.refrigerantChargeKg);
+  const glycolType = pick(input.glycolType, previous?.glycolType);
+  const glycolPercentage = pick(input.glycolPercentage, previous?.glycolPercentage);
+  const designFlowTemperature = pick(input.designFlowTemperature, previous?.designFlowTemperature);
+  const maximumFlowTemperature = pick(input.maximumFlowTemperature, previous?.maximumFlowTemperature);
+  const bufferTank = pick(input.bufferTank, previous?.bufferTank);
+  const bufferTankSizeLitres = pick(input.bufferTankSizeLitres, previous?.bufferTankSizeLitres);
+  const cylinderManufacturer = pick(input.cylinderManufacturer, previous?.cylinderManufacturer);
+  const cylinderModel = pick(input.cylinderModel, previous?.cylinderModel);
+  const cylinderSizeLitres = pick(input.cylinderSizeLitres, previous?.cylinderSizeLitres);
+  const installer = pick(input.installer, input.installerName, previous?.installer, previous?.installerName);
+  const commissionDate = pick(input.commissionDate, input.installationDate, input.installDate, previous?.commissionDate, previous?.installationDate, previous?.installDate, nowIso().slice(0, 10));
+  const installationDate = pick(input.installationDate, input.commissionDate, input.installDate, previous?.installationDate, previous?.commissionDate, previous?.installDate, commissionDate);
+  const warrantyExpiry = pick(input.warrantyExpiry, previous?.warrantyExpiry, commissionDate);
+  const systemType = pick(input.systemType, input.unitType, previous?.systemType, previous?.unitType, 'Heat Pump');
+  const heatSource = pick(input.heatSource, previous?.heatSource);
+  const configurationType = pick(input.configurationType, previous?.configurationType, 'unknown');
+  const yearIntroduced = pick(input.yearIntroduced, previous?.yearIntroduced);
+  const firmwareVersion = pick(input.firmwareVersion, previous?.firmwareVersion);
+  const notes = pick(input.notes, input.engineerNotes, previous?.notes, previous?.engineerNotes);
+  const status = pick(input.status, previous?.status, 'Commissioned');
+  const createdBy = input.createdBy || previous?.createdBy || demoEngineerId;
+  const updatedBy = input.updatedBy || demoEngineerId;
+
+  return {
+    id: input.id || previous?.id || createId(),
+    companyId: previous?.companyId || input.companyId || demoCompanyId,
+    customerId: previous?.customerId,
+    manufacturerCanonical: manufacturer,
+    customerName,
+    customerPhone,
+    customerEmail,
+    siteAddress,
+    addressLine1,
+    addressLine2,
+    townCity,
+    county,
+    eircode,
+    manufacturerEntered,
+    manufacturer,
+    modelFamily,
+    model,
+    exactModelNumber,
+    serialNumber,
+    outdoorModel,
+    indoorModel,
+    indoorSerial,
+    outdoorSerial,
+    controllerModel,
+    capacityKw,
+    electricalPhase,
+    voltage,
+    refrigerant,
+    refrigerantChargeKg,
+    glycolType,
+    glycolPercentage,
+    designFlowTemperature,
+    maximumFlowTemperature,
+    installer,
+    commissionDate,
+    installationDate,
+    warrantyExpiry,
+    systemType,
+    heatSource,
+    configurationType,
+    yearIntroduced,
+    firmwareVersion,
+    bufferTank,
+    bufferTankSizeLitres,
+    cylinderManufacturer,
+    cylinderModel,
+    notes,
+    createdAt: previous?.createdAt || nowIso(),
+    updatedAt: nowIso(),
+    phone: customerPhone,
+    email: customerEmail,
+    address: siteAddress,
+    eircodePostcode: eircode,
+    heatPumpBrand: manufacturer,
+    heatPumpModel: modelFamily,
+    manufacturer,
+    model,
+    indoorUnitSerial: indoorSerial,
+    outdoorUnitSerial: outdoorSerial,
+    installerName: installer,
+    installDate: installationDate,
+    warrantyStart: previous?.warrantyStart || commissionDate,
+    unitType: systemType,
+    status,
+    engineerNotes: notes,
+    createdBy,
+    updatedBy,
+  };
+};
+
+const seedInstallations = () => {
+  if (installationsSeeded) {
+    return;
+  }
+
+  getEquipmentHubRecords().forEach((record) => {
+    const installation = toInstallationRecord(record.id, demoCompanyId, demoEngineerId);
+    if (installation) {
+      installationStore.set(record.id, installation);
+    }
+  });
+
+  installationsSeeded = true;
+};
+
+const installationList = async () => {
+  seedInstallations();
+  const scope = await assertCompanyAccess();
+
+  return Array.from(installationStore.values())
+    .filter((record) => record.companyId === scope.companyId)
+    .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
 };
 
 export const localInstallationRepository: InstallationRepository = {
   listInstallations: async () => {
-    const scope = await assertCompanyAccess();
-
-    return getEquipmentHubRecords()
-      .map((record) => {
-        installationOwnership.set(record.id, resolveInstallationCompanyId(record.id));
-        return toInstallationRecord(record.id, scope.companyId, scope.engineerId);
-      })
-      .filter((record): record is InstallationRecord => Boolean(record))
-      .filter((record) => record.companyId === scope.companyId);
+    return installationList();
   },
 
   getInstallationById: async (installationId) => {
+    seedInstallations();
     const scope = await assertCompanyAccess(installationId);
-    return toInstallationRecord(installationId, scope.companyId, scope.engineerId);
+    const record = installationStore.get(installationId);
+    if (!record || record.companyId !== scope.companyId) {
+      return undefined;
+    }
+    return record;
   },
 
   createInstallation: async (input) => {
     const scope = await assertCompanyAccess();
 
-    const created = saveEquipmentRecord({
-      customerName: input.customerName,
-      phone: input.phone,
-      email: input.email,
-      eircodePostcode: input.eircodePostcode,
-      propertyAddress: input.address,
-      manufacturer: input.manufacturer,
-      model: input.model,
-      serialNumber: input.serialNumber,
-      indoorUnitSerial: '',
-      outdoorUnitSerial: '',
-      installationDate: input.installDate,
-      installer: input.installerName,
-      warrantyStart: input.installDate,
-      warrantyExpiry: input.installDate,
-      status: (input.status as 'Commissioned' | 'Active' | 'Out of Service' | 'Under Warranty') || 'Active',
-      engineerNotes: input.notes,
-    });
-
-    installationOwnership.set(created.id, scope.companyId);
-
-    return {
-      id: created.id,
-      companyId: scope.companyId,
-      customerName: created.customer.customerName,
-      phone: created.customer.phone,
-      email: created.customer.email,
-      address: created.customer.propertyAddress,
-      eircodePostcode: created.customer.eircodePostcode,
-      unitType: input.unitType,
-      manufacturer: created.equipment.manufacturer,
-      model: created.equipment.model,
-      serialNumber: created.equipment.serialNumber,
-      installDate: created.equipment.installationDate,
-      installerName: created.equipment.installer,
-      status: created.status,
-      notes: created.engineerNotes[0] || '',
-      createdBy: scope.engineerId,
-      updatedBy: scope.engineerId,
-    };
+    const created = normalizeInstallationInput({ ...input, companyId: scope.companyId, createdBy: scope.engineerId, updatedBy: scope.engineerId });
+    installationStore.set(created.id, created);
+    return created;
   },
 
   updateInstallation: async (installationId, updates) => {
+    seedInstallations();
     const scope = await assertCompanyAccess(installationId);
-    applyInstallationUpdates(installationId, updates);
-    return toInstallationRecord(installationId, scope.companyId, scope.engineerId);
+    const existing = installationStore.get(installationId);
+    if (!existing || existing.companyId !== scope.companyId) {
+      return undefined;
+    }
+
+    const updated = normalizeInstallationInput({ ...updates, id: installationId, companyId: scope.companyId, updatedBy: scope.engineerId }, existing);
+    installationStore.set(installationId, updated);
+    return updated;
+  },
+
+  deleteInstallation: async (installationId) => {
+    seedInstallations();
+    const scope = await assertCompanyAccess(installationId);
+    const existing = installationStore.get(installationId);
+    if (!existing || existing.companyId !== scope.companyId) {
+      return false;
+    }
+
+    return installationStore.delete(installationId);
   },
 
   startServiceVisit: async (installationId, engineerName) => {
