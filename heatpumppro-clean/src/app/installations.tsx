@@ -8,6 +8,7 @@ import { InstallationListCard } from '../components/installations/installation-l
 import { PrimaryButton } from '../components/primary-button';
 import { SectionCard } from '../components/section-card';
 import { SyncStatusBadge } from '../components/sync-status-badge';
+import { AppNavigation } from '../components/navigation';
 import { useAuth } from '../features/auth/auth-context';
 import { getInstallationRepository } from '../services/cloud';
 import { InstallationRecord } from '../services/cloud/repositories/types';
@@ -81,6 +82,7 @@ export default function InstallationsScreen() {
 				title="Installations"
 				subtitle="Store company-scoped installation records and open each site for details, edit, photos, and service workflows."
 			/>
+			<AppNavigation />
 
 			<SyncStatusBadge compact onPress={() => router.push('/account' as never)} />
 

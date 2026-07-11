@@ -1,25 +1,46 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { EmptyState, PrimaryButton, SecondaryButton, SectionCard } from '../components/common';
+import { PageHeader, ScreenContainer } from '../components/layout';
+import { AppNavigation } from '../components/navigation';
 
 export default function ComingSoonScreen() {
+  const { module } = useLocalSearchParams<{ module?: string }>();
+  const moduleName = module?.trim() || 'This module';
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Coming Soon</Text>
-    </View>
+    <ScreenContainer>
+      <PageHeader title="Coming Soon" subtitle="Planned HeatPump Pro module." />
+      <AppNavigation />
+
+      <SectionCard title={moduleName} subtitle="This module is part of the platform roadmap and is not enabled in this release.">
+        <EmptyState
+          title="Coming soon"
+          message="The module card is intentionally non-breaking and routes here until implementation begins."
+        />
+        <View style={styles.actionRow}>
+          <PrimaryButton
+            title="Back to Dashboard"
+            onPress={() => {
+              router.push('/' as never);
+            }}
+          />
+          <SecondaryButton
+            title="Open Installations"
+            onPress={() => {
+              router.push('/installations' as never);
+            }}
+          />
+        </View>
+      </SectionCard>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f4f8ff',
-    padding: 24,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#0f172a',
+  actionRow: {
+    marginTop: 10,
+    gap: 10,
   },
 });

@@ -5,6 +5,7 @@ import { AppHeader } from '../components/app-header';
 import { PrimaryButton } from '../components/primary-button';
 import { SectionCard } from '../components/section-card';
 import { SyncStatusBadge } from '../components/sync-status-badge';
+import { AppNavigation } from '../components/navigation';
 import { useAuth } from '../features/auth/auth-context';
 
 export default function AccountScreen() {
@@ -27,6 +28,7 @@ export default function AccountScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <AppHeader title="Account" subtitle="Engineer profile, company scope, and cloud foundation status." />
+      <AppNavigation />
 
       <SectionCard title="Session" subtitle="Authentication and company isolation context.">
         <SyncStatusBadge compact />
