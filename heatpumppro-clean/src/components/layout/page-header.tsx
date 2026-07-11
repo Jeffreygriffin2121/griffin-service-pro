@@ -25,6 +25,8 @@ export function PageHeader({ kicker = 'HeatPump Pro', title, subtitle, rightMeta
 const styles = StyleSheet.create({
   header: {
     backgroundColor: PlatformSurfaces.headerBackground,
+    borderWidth: 1,
+    borderColor: PlatformSurfaces.headerAccent,
     borderRadius: PlatformRadius.xl,
     padding: PlatformSpacing.xl,
     marginBottom: PlatformSpacing.md,

@@ -3,6 +3,8 @@ import { StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import {
   ActionTile,
+  ButtonRow,
+  CardGrid,
   EmptyState,
   ErrorState,
   LoadingState,
@@ -14,27 +16,25 @@ import {
 } from '../components/common';
 import { PageHeader, ScreenContainer } from '../components/layout';
 import { AppNavigation } from '../components/navigation';
-import { platformModuleRegistry } from '../features/platform';
+import { modulesByCategory, platformModuleRegistry } from '../features/platform';
 import { useAuth } from '../features/auth/auth-context';
 import { getInstallationRepository } from '../services/cloud';
+import { PlatformSpacing } from '../theme/platform-theme';
 
-const quickActions = [
-  { label: 'Start Service Visit', href: '/service' },
-  { label: 'New Installation', href: '/installations/new' },
-  { label: 'Fault Finder', href: '/fault-finder' },
-  { label: 'Commissioning', href: '/commissioning-wizard' },
-  { label: 'Find Installation', href: '/installations' },
-  { label: 'Create Report', href: '/reports' },
-] as const;
-
-const moduleSections: Array<{ title: string; subtitle: string; category: (typeof platformModuleRegistry)[number]['category'] }> = [
-  { title: 'Installations', subtitle: 'View Installations and Add Installation', category: 'installations' },
-  { title: 'Service', subtitle: 'Start Service Visit, Draft Visits, Service History', category: 'service' },
-  { title: 'Diagnostics', subtitle: 'Fault Finder, Equipment Knowledge Base, Performance Analysis', category: 'diagnostics' },
-  { title: 'Commissioning', subtitle: 'Start Commissioning and Draft Commissioning Records', category: 'commissioning' },
-  { title: 'Reports', subtitle: 'Service, commissioning, and customer reporting workflows', category: 'reports' },
-  { title: 'Business Tools', subtitle: 'Customers, parts, F-Gas records, and team capabilities', category: 'business' },
+const categoryDefinitions: Array<{
+  key: (typeof platformModuleRegistry)[number]['category'];
+  title: string;
+  subtitle: string;
+}> = [
+  { key: 'installations', title: 'Installations', subtitle: 'View Installations and Add Installation' },
+  { key: 'service', title: 'Service', subtitle: 'Start Service Visit, Draft Visits, Service History' },
+  { key: 'diagnostics', title: 'Diagnostics', subtitle: 'Fault Finder, Equipment Knowledge Base, Performance Analysis' },
+  { key: 'commissioning', title: 'Commissioning', subtitle: 'Start Commissioning and Draft Commissioning Records' },
+  { key: 'reports', title: 'Reports', subtitle: 'Service, commissioning, and customer reporting workflows' },
+  { key: 'business', title: 'Business Tools', subtitle: 'Customers, parts, F-Gas records, and team capabilities' },
 ];
+
+const toComingSoonRoute = (moduleName: string) => `/coming-soon?module=${encodeURIComponent(moduleName)}`;
 
 type SummaryCard = {
   label: string;
@@ -80,6 +80,41 @@ export default function HomeScreen() {
     [dataMode, installationCount, syncStatus],
   );
 
+  const quickActions = useMemo(
+    () =>
+      platformModuleRegistry
+        .filter((module) => module.enabled && !module.comingSoon)
+        .filter((module) => module.key !== 'service-visits')
+        .slice(0, 6)
+        .map((module) => ({
+          label: module.name,
+          route: module.route,
+        })),
+    [],
+  );
+
+  const moduleHealthCards = useMemo<SummaryCard[]>(
+    () =>
+      categoryDefinitions.map((category) => {
+        const modules = modulesByCategory(category.key);
+        const enabledCount = modules.filter((module) => module.enabled).length;
+        const comingSoonCount = modules.filter((module) => module.comingSoon).length;
+
+        return {
+          label: category.title,
+          value: `${enabledCount}/${modules.length}`,
+          subtitle: `${comingSoonCount} coming soon`,
+          tone: comingSoonCount ? 'warning' : 'success',
+        };
+      }),
+    [],
+  );
+
+  const openModule = (route: string, name: string, comingSoon: boolean) => {
+    const safeRoute = comingSoon ? toComingSoonRoute(name) : route;
+    router.push(safeRoute as never);
+  };
+
   return (
     <ScreenContainer>
       <PageHeader
@@ -113,54 +148,86 @@ export default function HomeScreen() {
       </SectionCard>
 
       <SectionCard title="Primary Quick Actions" subtitle="Fast launch actions for field engineers.">
-        <View style={styles.actionsGrid}>
+        <CardGrid minItemWidth={220}>
           {quickActions.map((action) => (
-            <View key={action.label} style={styles.actionsItem}>
+            <View key={action.label} style={styles.gridItem}>
               <PrimaryButton
                 title={action.label}
                 onPress={() => {
-                  router.push(action.href as never);
+                  router.push(action.route as never);
                 }}
               />
             </View>
           ))}
-        </View>
+        </CardGrid>
       </SectionCard>
 
       <SectionCard title="Operational Summary" subtitle="Live high-level metrics for day-to-day execution.">
         {loadingSummary ? <LoadingState label="Loading dashboard metrics..." /> : null}
         {summaryError ? <ErrorState message={summaryError} /> : null}
         {!loadingSummary && !summaryError ? (
-          <View style={styles.metricGrid}>
+          <CardGrid minItemWidth={220}>
             {summaryCards.map((item) => (
-              <MetricCard key={item.label} label={item.label} value={item.value} subtitle={item.subtitle} tone={item.tone} />
+              <View key={item.label} style={styles.gridItem}>
+                <MetricCard label={item.label} value={item.value} subtitle={item.subtitle} tone={item.tone} />
+              </View>
             ))}
-          </View>
+          </CardGrid>
         ) : null}
       </SectionCard>
 
-      {moduleSections.map((section) => {
-        const modules = platformModuleRegistry.filter((module) => module.category === section.category);
+      <SectionCard title="Module Coverage" subtitle="Current enablement across all platform categories.">
+        <CardGrid minItemWidth={220}>
+          {moduleHealthCards.map((item) => (
+            <View key={item.label} style={styles.gridItem}>
+              <MetricCard label={item.label} value={item.value} subtitle={item.subtitle} tone={item.tone} />
+            </View>
+          ))}
+        </CardGrid>
+      </SectionCard>
+
+      {categoryDefinitions.map((section) => {
+        const modules = modulesByCategory(section.key);
         return (
           <SectionCard key={section.title} title={section.title} subtitle={section.subtitle}>
             {modules.length ? (
-              modules.map((module) => (
-                <ActionTile
-                  key={module.key}
-                  title={module.name}
-                  description={module.description}
-                  comingSoon={module.comingSoon}
-                  onPress={() => {
-                    router.push(module.route as never);
-                  }}
-                />
-              ))
+              <CardGrid minItemWidth={280}>
+                {modules.map((module) => (
+                  <View key={module.key} style={styles.gridItem}>
+                    <ActionTile
+                      title={module.name}
+                      description={module.description}
+                      comingSoon={module.comingSoon}
+                      onPress={() => {
+                        openModule(module.route, module.name, module.comingSoon);
+                      }}
+                    />
+                  </View>
+                ))}
+              </CardGrid>
             ) : (
               <EmptyState title="Coming soon" message="This module area will be enabled in future platform releases." />
             )}
           </SectionCard>
         );
       })}
+
+      <SectionCard title="Engineer Shortcuts" subtitle="Keep critical paths reachable in one tap.">
+        <ButtonRow>
+          <SecondaryButton
+            title="Open Account"
+            onPress={() => {
+              router.push('/account' as never);
+            }}
+          />
+          <SecondaryButton
+            title="Installation List"
+            onPress={() => {
+              router.push('/installations' as never);
+            }}
+          />
+        </ButtonRow>
+      </SectionCard>
     </ScreenContainer>
   );
 }
@@ -172,19 +239,8 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 10,
   },
-  actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  actionsItem: {
-    flexBasis: '48%',
-    minWidth: 170,
-    flexGrow: 1,
-  },
-  metricGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
+  gridItem: {
+    width: '100%',
+    paddingBottom: PlatformSpacing.xs,
   },
 });

@@ -39,8 +39,16 @@ export const PlatformSurfaces = {
   cardBackground: '#ffffff',
   cardBorder: '#dbe7f6',
   headerBackground: '#0f4fb3',
+  headerAccent: '#1d64d1',
   headerText: '#ffffff',
   headerMuted: '#dbeafe',
+} as const;
+
+export const PlatformText = {
+  primary: '#0f172a',
+  secondary: '#334155',
+  muted: '#64748b',
+  inverse: '#ffffff',
 } as const;
 
 export const PlatformStatusColors = {
@@ -64,4 +72,6 @@ export const PlatformTouch = {
 
 export const PlatformLayout = {
   maxContentWidth: 1120,
+  tabletBreakpoint: 768,
+  desktopBreakpoint: 1080,
 } as const;

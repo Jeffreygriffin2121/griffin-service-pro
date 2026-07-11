@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { EmptyState, PrimaryButton, SecondaryButton, SectionCard } from '../components/common';
+import { ButtonRow, EmptyState, PrimaryButton, SecondaryButton, SectionCard } from '../components/common';
 import { PageHeader, ScreenContainer } from '../components/layout';
 import { AppNavigation } from '../components/navigation';
 
@@ -19,7 +18,7 @@ export default function ComingSoonScreen() {
           title="Coming soon"
           message="The module card is intentionally non-breaking and routes here until implementation begins."
         />
-        <View style={styles.actionRow}>
+        <ButtonRow>
           <PrimaryButton
             title="Back to Dashboard"
             onPress={() => {
@@ -32,15 +31,8 @@ export default function ComingSoonScreen() {
               router.push('/installations' as never);
             }}
           />
-        </View>
+        </ButtonRow>
       </SectionCard>
     </ScreenContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  actionRow: {
-    marginTop: 10,
-    gap: 10,
-  },
-});

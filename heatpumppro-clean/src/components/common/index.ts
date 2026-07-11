@@ -1,4 +1,6 @@
 export * from './action-tile';
+export * from './button-row';
+export * from './card-grid';
 export * from './danger-button';
 export * from './empty-state';
 export * from './error-state';

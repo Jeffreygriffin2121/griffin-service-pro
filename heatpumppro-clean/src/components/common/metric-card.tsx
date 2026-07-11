@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { PlatformRadius, PlatformShadows, PlatformSpacing, PlatformSurfaces } from '../../theme/platform-theme';
+import { PlatformRadius, PlatformShadows, PlatformSpacing, PlatformSurfaces, PlatformText } from '../../theme/platform-theme';
 import { StatusBadge } from './status-badge';
 
 type Props = {
@@ -23,8 +23,6 @@ export function MetricCard({ label, value, subtitle, tone = 'info' }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    flexBasis: '48%',
-    minWidth: 160,
     backgroundColor: PlatformSurfaces.cardBackground,
     borderRadius: PlatformRadius.md,
     borderWidth: 1,
@@ -33,19 +31,19 @@ const styles = StyleSheet.create({
     ...PlatformShadows.card,
   },
   label: {
-    color: '#64748b',
+    color: PlatformText.muted,
     fontSize: 12,
     fontWeight: '700',
     marginBottom: 6,
   },
   value: {
-    color: '#0f172a',
+    color: PlatformText.primary,
     fontSize: 24,
     fontWeight: '900',
     marginBottom: 4,
   },
   subtitle: {
-    color: '#475569',
+    color: PlatformText.secondary,
     fontSize: 13,
     marginBottom: PlatformSpacing.sm,
   },

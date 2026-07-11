@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { router, usePathname } from 'expo-router';
 import { PrimaryButton } from '../common/primary-button';
 import { SecondaryButton } from '../common/secondary-button';
+import { PlatformLayout, PlatformSpacing } from '../../theme/platform-theme';
 
 const items = [
   { label: 'Home', href: '/' },
@@ -15,6 +16,9 @@ const items = [
 
 export function AppNavigation() {
   const pathname = usePathname();
+  const { width } = useWindowDimensions();
+  const isTablet = width >= PlatformLayout.tabletBreakpoint;
+  const basis = isTablet ? '23%' : '48%';
 
   return (
     <View style={styles.container}>
@@ -23,7 +27,7 @@ export function AppNavigation() {
         const Button = active ? PrimaryButton : SecondaryButton;
 
         return (
-          <View key={item.href} style={styles.item}>
+          <View key={item.href} style={[styles.item, { flexBasis: basis }]}>
             <Button
               title={item.label}
               onPress={() => {
@@ -43,12 +47,11 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 12,
+    gap: PlatformSpacing.sm,
+    marginBottom: PlatformSpacing.md,
   },
   item: {
-    flexBasis: '31%',
-    minWidth: 110,
+    minWidth: 140,
     flexGrow: 1,
   },
 });
