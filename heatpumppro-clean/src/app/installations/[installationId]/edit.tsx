@@ -8,8 +8,15 @@ import {
 } from '../../../components/installations/installation-form';
 import { SectionCard } from '../../../components/section-card';
 import { SyncStatusBadge } from '../../../components/sync-status-badge';
-import { getInstallationRepository } from '../../../services/cloud';
-import { InstallationFormValues, InstallationRecord } from '../../../services/cloud/repositories/types';
+import { getCustomerSiteRepository, getInstallationRepository } from '../../../services/cloud';
+import {
+  CustomerFormValues,
+  CustomerRecord,
+  InstallationFormValues,
+  InstallationRecord,
+  SiteFormValues,
+  SiteRecord,
+} from '../../../services/cloud/repositories/types';
 
 const requiredFields: Array<[keyof InstallationFormValues, string]> = [
   ['customerName', 'Customer Name'],
@@ -31,6 +38,8 @@ const requiredFields: Array<[keyof InstallationFormValues, string]> = [
 ];
 
 const toFormValues = (record: InstallationRecord): InstallationFormValues => ({
+  linkedCustomerId: record.customerId || '',
+  linkedSiteId: record.siteId || '',
   customerName: record.customerName,
   customerPhone: record.customerPhone,
   customerEmail: record.customerEmail,
@@ -80,7 +89,12 @@ const toFormValues = (record: InstallationRecord): InstallationFormValues => ({
 export default function EditInstallationScreen() {
   const { installationId } = useLocalSearchParams<{ installationId?: string }>();
   const installationRepository = getInstallationRepository();
+  const customerSiteRepository = getCustomerSiteRepository();
   const [installation, setInstallation] = useState<InstallationRecord | undefined>(undefined);
+  const [customers, setCustomers] = useState<CustomerRecord[]>([]);
+  const [sites, setSites] = useState<SiteRecord[]>([]);
+  const [customerSiteError, setCustomerSiteError] = useState<string>('');
+  const [loadingCustomerSite, setLoadingCustomerSite] = useState<boolean>(true);
   const [formState, setFormState] = useState<InstallationFormValues>(emptyInstallationFormValues);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorText, setErrorText] = useState<string>('');
@@ -108,9 +122,30 @@ export default function EditInstallationScreen() {
     }
   }, [installationId, installationRepository]);
 
+  const loadCustomerSiteData = useCallback(async () => {
+    setLoadingCustomerSite(true);
+    setCustomerSiteError('');
+    try {
+      const [customerRows, siteRows] = await Promise.all([
+        customerSiteRepository.listCustomers(),
+        customerSiteRepository.listSites(),
+      ]);
+      setCustomers(customerRows);
+      setSites(siteRows);
+    } catch (error) {
+      setCustomerSiteError(error instanceof Error ? error.message : 'Unable to load customers and sites.');
+    } finally {
+      setLoadingCustomerSite(false);
+    }
+  }, [customerSiteRepository]);
+
   useEffect(() => {
     void loadInstallation();
   }, [loadInstallation]);
+
+  useEffect(() => {
+    void loadCustomerSiteData();
+  }, [loadCustomerSiteData]);
 
   const onSave = useCallback(async () => {
     const missing = requiredFields.find(([field]) => !formState[field].trim());
@@ -128,7 +163,11 @@ export default function EditInstallationScreen() {
     setErrorText('');
 
     try {
-      const updated = await installationRepository.updateInstallation(installation.id, formState);
+      const updated = await installationRepository.updateInstallation(installation.id, {
+        ...formState,
+        customerId: formState.linkedCustomerId || undefined,
+        siteId: formState.linkedSiteId || undefined,
+      });
       if (!updated) {
         setErrorText('Unable to update this installation.');
         return;
@@ -177,12 +216,27 @@ export default function EditInstallationScreen() {
 
       <InstallationForm
         values={formState}
+        customers={customers}
+        sites={sites}
+        isCustomerSiteLoading={loadingCustomerSite}
+        showLegacyCustomerDetails={!installation.customerId || !installation.siteId}
+        customerSiteErrorText={customerSiteError}
         errorText={errorText}
         saveLabel={isSaving ? 'Saving...' : 'Save Changes'}
         isSaving={isSaving}
         onChange={(field, value) => {
           setFormState((current) => ({ ...current, [field]: value }));
           setErrorText('');
+        }}
+        onCreateCustomer={async (values: CustomerFormValues) => {
+          const created = await customerSiteRepository.createCustomer(values);
+          await loadCustomerSiteData();
+          return created;
+        }}
+        onCreateSite={async (values: SiteFormValues) => {
+          const created = await customerSiteRepository.createSite(values);
+          await loadCustomerSiteData();
+          return created;
         }}
         onSave={onSave}
         onCancel={() => {

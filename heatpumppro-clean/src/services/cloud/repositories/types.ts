@@ -2,6 +2,8 @@ import { EquipmentAsset, EquipmentRecord } from '../../../types/equipment';
 import { CompleteServiceVisitInput } from '../../equipment/equipment-hub-service';
 
 export interface InstallationFormValues {
+  linkedCustomerId: string;
+  linkedSiteId: string;
   customerName: string;
   customerPhone: string;
   customerEmail: string;
@@ -85,6 +87,7 @@ export interface InstallationRecord extends InstallationFormValues, LegacyInstal
   id: string;
   companyId: string;
   customerId?: string;
+  siteId?: string;
   manufacturerCanonical: string;
   createdAt: string;
   updatedAt: string;
@@ -94,8 +97,95 @@ export type InstallationUpsertInput = Partial<InstallationFormValues> & Partial<
   id?: string;
   companyId?: string;
   customerId?: string;
+  siteId?: string;
   manufacturerCanonical?: string;
 };
+
+export type CustomerType = 'domestic' | 'commercial' | 'landlord' | 'property manager' | 'other';
+
+export interface CustomerFormValues {
+  customerType: CustomerType;
+  title: string;
+  firstName: string;
+  lastName: string;
+  companyName: string;
+  primaryEmail: string;
+  secondaryEmail: string;
+  primaryPhone: string;
+  secondaryPhone: string;
+  billingAddressLine1: string;
+  billingAddressLine2: string;
+  billingTown: string;
+  billingCounty: string;
+  billingEircode: string;
+  notes: string;
+  preferredContactMethod: string;
+  marketingConsent: boolean;
+  active: boolean;
+}
+
+export interface CustomerRecord extends CustomerFormValues {
+  id: string;
+  companyId: string;
+  customerName: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SiteFormValues {
+  customerId: string;
+  siteName: string;
+  addressLine1: string;
+  addressLine2: string;
+  town: string;
+  county: string;
+  eircode: string;
+  country: string;
+  accessInstructions: string;
+  parkingNotes: string;
+  gateCode: string;
+  keySafeCode: string;
+  propertyType: string;
+  occupancyType: string;
+  bedrooms: string;
+  floorAreaM2: string;
+  constructionYear: string;
+  insulationNotes: string;
+  heatingDistribution: string;
+  siteNotes: string;
+  latitude: string;
+  longitude: string;
+  active: boolean;
+}
+
+export interface SiteRecord extends SiteFormValues {
+  id: string;
+  companyId: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CustomerWithStats {
+  customer: CustomerRecord;
+  siteCount: number;
+  installationCount: number;
+  latestVisitDate?: string;
+}
+
+export interface CustomerSiteRepository {
+  listCustomers(): Promise<CustomerRecord[]>;
+  getCustomerById(customerId: string): Promise<CustomerRecord | undefined>;
+  createCustomer(input: CustomerFormValues): Promise<CustomerRecord>;
+  updateCustomer(customerId: string, updates: CustomerFormValues): Promise<CustomerRecord | undefined>;
+
+  listSites(): Promise<SiteRecord[]>;
+  listSitesByCustomer(customerId: string): Promise<SiteRecord[]>;
+  getSiteById(siteId: string): Promise<SiteRecord | undefined>;
+  createSite(input: SiteFormValues): Promise<SiteRecord>;
+  updateSite(siteId: string, updates: SiteFormValues): Promise<SiteRecord | undefined>;
+}
 
 export interface EquipmentPassportResult {
   equipment: EquipmentRecord;

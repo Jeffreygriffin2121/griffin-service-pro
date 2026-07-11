@@ -76,11 +76,11 @@ export const platformModuleRegistry: PlatformModuleDefinition[] = [
   {
     key: 'customers',
     name: 'Customers',
-    route: comingSoonRoute('Customers'),
+    route: '/customers',
     iconKey: 'customers',
     description: 'Customer records and engagement history.',
-    enabled: false,
-    comingSoon: true,
+    enabled: true,
+    comingSoon: false,
     category: 'business',
   },
   {

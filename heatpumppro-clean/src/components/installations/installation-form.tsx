@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { CustomerForm, CustomerSelector, SiteForm, SiteSelector } from '../customers';
 import { EquipmentSelector } from '../equipment/equipment-selector';
 import { EquipmentSelectorSelection } from '../../types/equipment';
-import { InstallationFormValues } from '../../services/cloud/repositories/types';
+import {
+  CustomerFormValues,
+  CustomerRecord,
+  InstallationFormValues,
+  SiteFormValues,
+  SiteRecord,
+} from '../../services/cloud/repositories/types';
 import { FormInput } from '../form-input';
 import { PrimaryButton } from '../primary-button';
 import { SectionCard } from '../section-card';
 
 export const emptyInstallationFormValues: InstallationFormValues = {
+  linkedCustomerId: '',
+  linkedSiteId: '',
   customerName: '',
   customerPhone: '',
   customerEmail: '',
@@ -54,27 +63,106 @@ export const emptyInstallationFormValues: InstallationFormValues = {
   notes: '',
 };
 
+const emptyCustomerFormValues: CustomerFormValues = {
+  customerType: 'domestic',
+  title: '',
+  firstName: '',
+  lastName: '',
+  companyName: '',
+  primaryEmail: '',
+  secondaryEmail: '',
+  primaryPhone: '',
+  secondaryPhone: '',
+  billingAddressLine1: '',
+  billingAddressLine2: '',
+  billingTown: '',
+  billingCounty: '',
+  billingEircode: '',
+  notes: '',
+  preferredContactMethod: 'phone',
+  marketingConsent: false,
+  active: true,
+};
+
+const emptySiteFormValues: SiteFormValues = {
+  customerId: '',
+  siteName: '',
+  addressLine1: '',
+  addressLine2: '',
+  town: '',
+  county: '',
+  eircode: '',
+  country: 'Ireland',
+  accessInstructions: '',
+  parkingNotes: '',
+  gateCode: '',
+  keySafeCode: '',
+  propertyType: '',
+  occupancyType: '',
+  bedrooms: '',
+  floorAreaM2: '',
+  constructionYear: '',
+  insulationNotes: '',
+  heatingDistribution: '',
+  siteNotes: '',
+  latitude: '',
+  longitude: '',
+  active: true,
+};
+
 type Props = {
   values: InstallationFormValues;
+  customers?: CustomerRecord[];
+  sites?: SiteRecord[];
+  isCustomerSiteLoading?: boolean;
+  showLegacyCustomerDetails?: boolean;
   errorText?: string;
+  customerSiteErrorText?: string;
   saveLabel: string;
   cancelLabel?: string;
   isSaving?: boolean;
   onChange: (field: keyof InstallationFormValues, value: string) => void;
+  onCreateCustomer?: (values: CustomerFormValues) => Promise<CustomerRecord | undefined>;
+  onCreateSite?: (values: SiteFormValues) => Promise<SiteRecord | undefined>;
   onSave: () => void;
   onCancel: () => void;
 };
 
 export function InstallationForm({
   values,
+  customers = [],
+  sites = [],
+  isCustomerSiteLoading = false,
+  showLegacyCustomerDetails = false,
   errorText,
+  customerSiteErrorText,
   saveLabel,
   cancelLabel = 'Cancel',
   isSaving = false,
   onChange,
+  onCreateCustomer,
+  onCreateSite,
   onSave,
   onCancel,
 }: Props) {
+  const [showCreateCustomer, setShowCreateCustomer] = useState<boolean>(false);
+  const [showCreateSite, setShowCreateSite] = useState<boolean>(false);
+  const [customerForm, setCustomerForm] = useState<CustomerFormValues>(emptyCustomerFormValues);
+  const [siteForm, setSiteForm] = useState<SiteFormValues>(emptySiteFormValues);
+  const [isSavingCustomer, setIsSavingCustomer] = useState<boolean>(false);
+  const [isSavingSite, setIsSavingSite] = useState<boolean>(false);
+  const [inlineError, setInlineError] = useState<string>('');
+
+  const selectedCustomer = useMemo(
+    () => customers.find((customer) => customer.id === values.linkedCustomerId),
+    [customers, values.linkedCustomerId],
+  );
+
+  const customerSites = useMemo(
+    () => sites.filter((site) => !values.linkedCustomerId || site.customerId === values.linkedCustomerId),
+    [sites, values.linkedCustomerId],
+  );
+
   const selectorValue: EquipmentSelectorSelection = {
     manufacturerEntered: values.manufacturerEntered,
     manufacturer: values.manufacturer,
@@ -85,9 +173,197 @@ export function InstallationForm({
     manualEntry: !values.manufacturer || !values.modelFamily,
   };
 
+  const onSaveCustomer = async () => {
+    if (!onCreateCustomer) {
+      return;
+    }
+
+    setInlineError('');
+    setIsSavingCustomer(true);
+    try {
+      const created = await onCreateCustomer(customerForm);
+      if (!created) {
+        setInlineError('Unable to create customer.');
+        return;
+      }
+
+      onChange('linkedCustomerId', created.id);
+      onChange('linkedSiteId', '');
+      onChange('customerName', created.customerName);
+      onChange('customerPhone', created.primaryPhone);
+      onChange('customerEmail', created.primaryEmail);
+      onChange('siteAddress', created.billingAddressLine1);
+      onChange('eircode', created.billingEircode);
+
+      setCustomerForm(emptyCustomerFormValues);
+      setSiteForm((current) => ({ ...current, customerId: created.id }));
+      setShowCreateCustomer(false);
+    } catch (error) {
+      setInlineError(error instanceof Error ? error.message : 'Unable to create customer.');
+    } finally {
+      setIsSavingCustomer(false);
+    }
+  };
+
+  const onSaveSite = async () => {
+    if (!onCreateSite) {
+      return;
+    }
+
+    setInlineError('');
+    setIsSavingSite(true);
+    try {
+      const created = await onCreateSite({
+        ...siteForm,
+        customerId: siteForm.customerId || values.linkedCustomerId,
+      });
+
+      if (!created) {
+        setInlineError('Unable to create site.');
+        return;
+      }
+
+      onChange('linkedSiteId', created.id);
+      onChange('siteAddress', created.addressLine1);
+      onChange('addressLine1', created.addressLine1);
+      onChange('addressLine2', created.addressLine2);
+      onChange('townCity', created.town);
+      onChange('county', created.county);
+      onChange('eircode', created.eircode);
+
+      setSiteForm(emptySiteFormValues);
+      setShowCreateSite(false);
+    } catch (error) {
+      setInlineError(error instanceof Error ? error.message : 'Unable to create site.');
+    } finally {
+      setIsSavingSite(false);
+    }
+  };
+
   return (
     <View>
-      <SectionCard title="Customer and Site" subtitle="Capture the customer contact details and the installation address.">
+      <SectionCard title="Customer and Site Linking" subtitle="Link this installation to a customer and site, or create records inline.">
+        <CustomerSelector
+          customers={customers}
+          selectedCustomerId={values.linkedCustomerId}
+          onSelectCustomer={(customerId) => {
+            onChange('linkedCustomerId', customerId);
+            onChange('linkedSiteId', '');
+
+            const customer = customers.find((item) => item.id === customerId);
+            if (customer) {
+              onChange('customerName', customer.customerName);
+              onChange('customerPhone', customer.primaryPhone);
+              onChange('customerEmail', customer.primaryEmail);
+              onChange('siteAddress', customer.billingAddressLine1);
+              onChange('eircode', customer.billingEircode);
+            }
+          }}
+          disabled={isCustomerSiteLoading || isSaving}
+        />
+
+        <SiteSelector
+          sites={customerSites}
+          selectedSiteId={values.linkedSiteId}
+          onSelectSite={(siteId) => {
+            onChange('linkedSiteId', siteId);
+            const site = sites.find((item) => item.id === siteId);
+            if (site) {
+              onChange('siteAddress', site.addressLine1);
+              onChange('addressLine1', site.addressLine1);
+              onChange('addressLine2', site.addressLine2);
+              onChange('townCity', site.town);
+              onChange('county', site.county);
+              onChange('eircode', site.eircode);
+            }
+          }}
+          disabled={!values.linkedCustomerId || isCustomerSiteLoading || isSaving}
+        />
+
+        <PrimaryButton
+          title={showCreateCustomer ? 'Hide New Customer Form' : 'Create New Customer'}
+          onPress={() => {
+            setShowCreateCustomer((value) => !value);
+            if (!showCreateCustomer) {
+              setCustomerForm((current) => ({
+                ...current,
+                firstName: values.customerName,
+                primaryPhone: values.customerPhone,
+                primaryEmail: values.customerEmail,
+                billingAddressLine1: values.siteAddress,
+                billingEircode: values.eircode,
+              }));
+            }
+          }}
+          style={styles.inlineActionButton}
+        />
+
+        <PrimaryButton
+          title={showCreateSite ? 'Hide New Site Form' : 'Create New Site'}
+          onPress={() => {
+            setShowCreateSite((value) => !value);
+            if (!showCreateSite) {
+              setSiteForm((current) => ({
+                ...current,
+                customerId: values.linkedCustomerId,
+                addressLine1: values.siteAddress || values.addressLine1,
+                addressLine2: values.addressLine2,
+                town: values.townCity,
+                county: values.county,
+                eircode: values.eircode,
+              }));
+            }
+          }}
+          disabled={!values.linkedCustomerId}
+          style={styles.inlineActionButton}
+        />
+
+        {customerSiteErrorText ? <Text style={styles.errorText}>{customerSiteErrorText}</Text> : null}
+        {inlineError ? <Text style={styles.errorText}>{inlineError}</Text> : null}
+      </SectionCard>
+
+      {showCreateCustomer ? (
+        <SectionCard title="New Customer" subtitle="Create a customer record without leaving installation workflow.">
+          <CustomerForm
+            values={customerForm}
+            saveLabel={isSavingCustomer ? 'Saving Customer...' : 'Save Customer'}
+            cancelLabel="Cancel Customer"
+            isSaving={isSavingCustomer}
+            onChange={(field, value) => {
+              setCustomerForm((current) => ({ ...current, [field]: value }));
+            }}
+            onSave={() => {
+              void onSaveCustomer();
+            }}
+            onCancel={() => {
+              setShowCreateCustomer(false);
+            }}
+          />
+        </SectionCard>
+      ) : null}
+
+      {showCreateSite ? (
+        <SectionCard title="New Site" subtitle="Create a site linked to the selected customer.">
+          <SiteForm
+            values={siteForm}
+            customers={customers}
+            saveLabel={isSavingSite ? 'Saving Site...' : 'Save Site'}
+            cancelLabel="Cancel Site"
+            isSaving={isSavingSite}
+            onChange={(field, value) => {
+              setSiteForm((current) => ({ ...current, [field]: value }));
+            }}
+            onSave={() => {
+              void onSaveSite();
+            }}
+            onCancel={() => {
+              setShowCreateSite(false);
+            }}
+          />
+        </SectionCard>
+      ) : null}
+
+      <SectionCard title="Customer and Site" subtitle="Capture contact and address fields used by legacy records.">
         <FormInput
           label="Customer Name"
           value={values.customerName}
@@ -147,6 +423,22 @@ export function InstallationForm({
           placeholder="County"
         />
       </SectionCard>
+
+      {showLegacyCustomerDetails ? (
+        <SectionCard title="Legacy Customer Details" subtitle="This installation uses legacy free-text customer/site fields.">
+          <Text style={styles.legacyText}>Customer and site links are optional for existing records. Legacy details are preserved.</Text>
+          <Text style={styles.legacyLabel}>Customer</Text>
+          <Text style={styles.legacyValue}>{values.customerName || 'Not captured'}</Text>
+          <Text style={styles.legacyLabel}>Phone</Text>
+          <Text style={styles.legacyValue}>{values.customerPhone || 'Not captured'}</Text>
+          <Text style={styles.legacyLabel}>Email</Text>
+          <Text style={styles.legacyValue}>{values.customerEmail || 'Not captured'}</Text>
+          <Text style={styles.legacyLabel}>Site Address</Text>
+          <Text style={styles.legacyValue}>{values.siteAddress || 'Not captured'}</Text>
+          <Text style={styles.legacyLabel}>Eircode</Text>
+          <Text style={styles.legacyValue}>{values.eircode || 'Not captured'}</Text>
+        </SectionCard>
+      ) : null}
 
       <EquipmentSelector
         value={selectorValue}
@@ -354,6 +646,27 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#b91c1c',
     marginBottom: 12,
+  },
+  inlineActionButton: {
+    marginBottom: 10,
+  },
+  legacyText: {
+    color: '#475569',
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 10,
+  },
+  legacyLabel: {
+    color: '#64748b',
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: 4,
+  },
+  legacyValue: {
+    color: '#0f172a',
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 6,
   },
   button: {
     marginBottom: 10,

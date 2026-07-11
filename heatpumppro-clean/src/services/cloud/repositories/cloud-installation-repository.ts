@@ -7,6 +7,7 @@ type InstallationRow = {
   id: string;
   company_id: string;
   customer_id?: string | null;
+  site_id?: string | null;
   customer_name?: string | null;
   customer_phone?: string | null;
   customer_email?: string | null;
@@ -157,6 +158,9 @@ const mapRowToInstallation = (row: InstallationRow): InstallationRecord => {
     id: row.id,
     companyId: row.company_id,
     customerId: row.customer_id || undefined,
+    siteId: row.site_id || undefined,
+    linkedCustomerId: row.customer_id || '',
+    linkedSiteId: row.site_id || '',
     manufacturerCanonical: manufacturer,
     customerName,
     customerPhone,
@@ -271,7 +275,8 @@ const buildRowFromInput = (input: InstallationUpsertInput, companyId: string) =>
 
   return {
     company_id: companyId,
-    customer_id: input.customerId || null,
+    customer_id: input.customerId || input.linkedCustomerId || null,
+    site_id: input.siteId || input.linkedSiteId || null,
     customer_name: customerName,
     customer_phone: customerPhone,
     customer_email: customerEmail,

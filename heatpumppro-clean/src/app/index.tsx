@@ -85,6 +85,15 @@ export default function HomeScreen() {
       platformModuleRegistry
         .filter((module) => module.enabled && !module.comingSoon)
         .filter((module) => module.key !== 'service-visits')
+        .sort((left, right) => {
+          if (left.key === 'customers') {
+            return -1;
+          }
+          if (right.key === 'customers') {
+            return 1;
+          }
+          return 0;
+        })
         .slice(0, 6)
         .map((module) => ({
           label: module.name,
@@ -214,6 +223,24 @@ export default function HomeScreen() {
 
       <SectionCard title="Engineer Shortcuts" subtitle="Keep critical paths reachable in one tap.">
         <ButtonRow>
+          <SecondaryButton
+            title="Customers"
+            onPress={() => {
+              router.push('/customers' as never);
+            }}
+          />
+          <SecondaryButton
+            title="New Customer"
+            onPress={() => {
+              router.push('/customers/new' as never);
+            }}
+          />
+          <SecondaryButton
+            title="Find Customer"
+            onPress={() => {
+              router.push('/customers' as never);
+            }}
+          />
           <SecondaryButton
             title="Open Account"
             onPress={() => {

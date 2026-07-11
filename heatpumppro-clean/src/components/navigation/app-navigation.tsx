@@ -8,6 +8,7 @@ import { PlatformLayout, PlatformSpacing } from '../../theme/platform-theme';
 const items = [
   { label: 'Home', href: '/' },
   { label: 'Installations', href: '/installations' },
+  { label: 'Customers', href: '/customers' },
   { label: 'Service', href: '/service' },
   { label: 'Fault Finder', href: '/fault-finder' },
   { label: 'Reports', href: '/reports' },
